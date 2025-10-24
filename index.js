@@ -404,7 +404,7 @@ document.addEventListener(
 
 
 // Connessione mixer
-conn.connect();
+//conn.connect();
 conn.status$.subscribe(status => {
   addLog("UI24R state: ", state);
 });
