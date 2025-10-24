@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Mixer AUX Controller</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+  <div class="header-left">
+    <button id="config-btn" class="header-btn">⚙️</button>
+    <button id="open-log-btn" class="header-btn">📋</button>
+  </div>
+  <h3 id="header-title">Seleziona AUX..</h3>
+  <button class="header-btn" id="pa-btn">PA</button>
+</header>
+
+      <div id="aux-container"></div>
+
+      <footer></footer>
+    </main>
+
+    <!-- Dialog AUX Selector -->
+    <dialog id="aux-dialog">
+      <!-- Campo IP -->
+      <div class="dialog-row">
+        <label for="mixer-ip">IP Mixer:</label>
+        <input type="text" id="mixer-ip" value="10.10.10.1" />
+      </div>
+      <div id="aux-selector-dialog">
+        <div id="aux-selector"></div>
+      </div>
+      <button id="close-dialog-btn">OK</button>
+    </dialog>
+
+    <dialog id="log-dialog">
+      <h3>Log Connessione</h3>
+      <div id="log-container"></div>
+      <button id="close-log-btn" class="close-dialog-btn">Chiudi</button>
+    </dialog>
+
+    <script src="./rxjs.umd.min.js"></script>
+    <script type="module" src="soundcraft-ui.bundle.js"></script>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
