@@ -1,57 +1,329 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Mixer AUX Controller</title>
-    <link rel="manifest" href="manifest.json" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <main>
-      <header>
-  <div class="header-left">
-    <button id="config-btn" class="header-btn">⚙️</button>
-    <button id="open-log-btn" class="header-btn">📋</button>
-  </div>
-  <h3 id="header-title">Seleziona AUX..</h3>
-  <button class="header-btn" id="pa-btn">PA</button>
-</header>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Griglia 20 celle dark con dialog</title>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    background-color: #121212;
+    color: #fff;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
 
-      <div id="aux-container"></div>
+/* Header e footer sticky */
+#header, #footer {
+    height: 40px;
+    line-height: 40px;
+    background-color: #1f1f1f;
+    color: #fff;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    z-index: 10;
+}
 
-      <footer></footer>
-    </main>
+#header {
+    top: 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
 
-    <!-- Dialog AUX Selector -->
-    <dialog id="aux-dialog">
-      <!-- Campo IP -->
-      <div class="dialog-row">
-        <label for="mixer-ip">IP Mixer:</label>
-        <input type="text" id="mixer-ip" value="10.10.10.1" />
-      </div>
-      <div id="aux-selector-dialog">
-        <div id="aux-selector"></div>
-      </div>
-      <button id="close-dialog-btn">OK</button>
-    </dialog>
+#header-left {
+    display: flex;
+    flex-shrink: 0;
+    margin-left: 5px;
+}
 
-    <dialog id="log-dialog">
-      <h3>Log Connessione</h3>
-      <div id="log-container"></div>
-      <button id="close-log-btn" class="close-dialog-btn">Chiudi</button>
-    </dialog>
+.header-btn {
+    background-color: #3a3a3a;
+    color: #fff;
+    border: 1px solid #555;
+    margin-right: 5px;
+    padding: 0 8px;
+    height: 28px;
+    font-size: 14px;
+    cursor: pointer;
+}
 
-    <script src="rxjs.umd.min.js"></script>
-    <script type="module" src="soundcraft-ui.bundle.js"></script>
-    <script type="module" src="index.js"></script>
-  </body>
+.header-btn:active {
+    background-color: #505050;
+}
+
+#header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Footer elementi */
+#footer { 
+    bottom: 0; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0; 
+}
+
+#slider-label { width: 20%; text-align: center; }
+#slider-range { width: 60%; }
+#slider-value { width: 20%; text-align: center; }
+
+/* Wrapper griglia */
+#grid-wrapper {
+    position: absolute;
+    top: 40px;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+}
+
+/* Celle */
+.cell {
+    float: left;
+    width: 20%;
+    height: 25%;
+    border: 1px solid #0d8726;
+    background-color: #1a1a1a;
+    box-sizing: border-box;
+    display: block;
+    color: #fff;
+}
+
+/* Righe interne */
+.row-top {
+    height: 25%;
+    width: 100%;
+    display: block;
+    text-align: center;
+    line-height: 1.2;
+    box-sizing: border-box;
+    background-color: #2c2c2c;
+    padding: 1px;
+}
+
+.row-bottom {
+    height: 75%;
+    width: 100%;
+    display: block;
+    text-align: center;
+    background-color: #121212;
+    color: #fff;
+    box-sizing: border-box;
+    padding: 1px;
+    overflow: hidden;
+}
+
+/* Slider container con table layout */
+.slider-container {
+    display: table;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.slider-container div {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    padding: 1px;
+}
+
+.slider-container div:first-child,
+.slider-container div:last-child {
+    width: 40%;
+}
+
+.slider-container div:nth-child(2) {
+    width: 20%;
+}
+
+.slider-container button {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    font-size: 20px;
+    background-color: #3a3a3a;
+    color: #fff;
+    border: 1px solid #555;
+    cursor: pointer;
+}
+
+.slider-container button:active {
+    background-color: #505050;
+}
+
+.slider-container span {
+    width: 100%;
+    display: block;
+    background-color: #121212;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* Dialog */
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+}
+
+.dialog-content {
+    width: 80%;
+    max-width: 300px;
+    margin: 100px auto;
+    background-color: #1a1a1a;
+    color: #fff;
+    padding: 20px;
+    border: 1px solid #444;
+    text-align: center;
+}
+
+.close-btn {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #444;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+    <div id="header-left">
+        <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">Config</button>
+        <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">Log</button>
+    </div>
+    <div id="header-title">Header Sticky</div>
+</div>
+
+<div id="grid-wrapper"></div>
+
+<div id="footer">
+    <label for="slider-range" id="slider-label">Value:</label>
+    <input type="range" id="slider-range" min="0" max="1" step="0.05" value="0">
+    <span id="slider-value">0.00</span>
+</div>
+
+<!-- Dialog 1: Config -->
+<div id="config-dialog" class="dialog">
+    <div id="config-dialog-content" class="dialog-content">
+        <p id="config-dialog-text">Configurazioni generali</p>
+        <button id="config-dialog-close" class="close-btn" onclick="closeDialog('config-dialog')">Chiudi</button>
+    </div>
+</div>
+
+<!-- Dialog 2: Log -->
+<div id="log-dialog" class="dialog">
+    <div id="log-dialog-content" class="dialog-content">
+        <p id="log-dialog-text">Registro eventi</p>
+        <button id="log-dialog-close" class="close-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+    </div>
+</div>
+
+<script>
+// Genera 20 celle
+var totalCells = 20;
+var wrapper = document.getElementById('grid-wrapper');
+
+for (var i = 1; i <= totalCells; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = 'cell_wrapper_' + i;
+
+    var rowTop = document.createElement('div');
+    rowTop.className = 'row-top';
+    rowTop.id = 'ch_name_' + i;
+    rowTop.textContent = 'Top ' + i;
+
+    var rowBottom = document.createElement('div');
+    rowBottom.className = 'row-bottom';
+    rowBottom.id = 'fader_' + i;
+
+    var container = document.createElement('div');
+    container.className = 'slider-container';
+    container.id = 'slider_container_' + i;
+
+    var btnDecDiv = document.createElement('div');
+    var decButton = document.createElement('button');
+    decButton.textContent = '-';
+    decButton.id = 'btn_dec_' + i;
+    btnDecDiv.appendChild(decButton);
+
+    var valueDiv = document.createElement('div');
+    var valueSpan = document.createElement('span');
+    valueSpan.id = 'fader_value_' + i;
+    valueSpan.textContent = '0.00';
+    valueDiv.appendChild(valueSpan);
+
+    var btnIncDiv = document.createElement('div');
+    var incButton = document.createElement('button');
+    incButton.textContent = '+';
+    incButton.id = 'btn_inc_' + i;
+    btnIncDiv.appendChild(incButton);
+
+    container.appendChild(btnDecDiv);
+    container.appendChild(valueDiv);
+    container.appendChild(btnIncDiv);
+    rowBottom.appendChild(container);
+
+    cell.appendChild(rowTop);
+    cell.appendChild(rowBottom);
+    wrapper.appendChild(cell);
+
+    // Incremento/decremento
+    (function(v, decBtn, incBtn){
+        var step = 0.05;
+        var min = 0;
+        var max = 1;
+        var currentValue = 0;
+
+        decBtn.addEventListener('click', function() {
+            currentValue -= step;
+            if (currentValue < min) currentValue = min;
+            v.textContent = currentValue.toFixed(2);
+        });
+
+        incBtn.addEventListener('click', function() {
+            currentValue += step;
+            if (currentValue > max) currentValue = max;
+            v.textContent = currentValue.toFixed(2);
+        });
+    })(valueSpan, decButton, incButton);
+}
+
+// Footer slider principale
+var mainSlider = document.getElementById('slider-range');
+var mainSliderValue = document.getElementById('slider-value');
+mainSlider.addEventListener('input', function() {
+    mainSliderValue.textContent = parseFloat(mainSlider.value).toFixed(2);
+});
+
+// Funzioni dialog
+function openDialog(id) {
+    document.getElementById(id).style.display = 'block';
+}
+function closeDialog(id) {
+    document.getElementById(id).style.display = 'none';
+}
+</script>
+
+</body>
 </html>
