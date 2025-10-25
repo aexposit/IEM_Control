@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Griglia 20 celle dark con binding</title>
+<title>Griglia 20 celle dark con binding e sync</title>
 <style>
 html, body {
     margin: 0;
@@ -106,9 +106,9 @@ html, body {
 .row-top {
     height: 25%;
     width: 100%;
-    display: block;
-    text-align: center;
-    line-height: 1.2;
+    display: flex;
+    justify-content: center;  /* orizzontale */
+    align-items: center;      /* verticale */
     box-sizing: border-box;
     background-color: #2c2c2c;
     padding: 2px;
@@ -281,7 +281,7 @@ for (var i = 1; i <= chCount; i++) {
 
     var btnDecDiv = document.createElement('div');
     var decButton = document.createElement('button');
-    decButton.textContent = '-';
+    decButton.textContent = '<<';
     decButton.id = 'btn_dec_' + i;
     btnDecDiv.appendChild(decButton);
 
@@ -294,7 +294,7 @@ for (var i = 1; i <= chCount; i++) {
 
     var btnIncDiv = document.createElement('div');
     var incButton = document.createElement('button');
-    incButton.textContent = '+';
+    incButton.textContent = '>>';
     incButton.id = 'btn_inc_' + i;
     btnIncDiv.appendChild(incButton);
 
@@ -312,7 +312,7 @@ for (var i = 1; i <= chCount; i++) {
         var step = 0.05;
         function updateSpan(){
             span.textContent = model[aux][ch].toFixed(2);
-            span.className = 'value-' + (pending[aux][ch] ? 'pending' : 'sync');
+            span.className = pending[aux][ch] ? 'value-pending' : 'value-sync';
         }
         decBtn.onclick = function(){
             model[aux][ch] -= step;
@@ -325,6 +325,12 @@ for (var i = 1; i <= chCount; i++) {
             if(model[aux][ch]>1) model[aux][ch]=1;
             pending[aux][ch]=true;
             updateSpan();
+        };
+        // funzione per aggiornamento dal mixer
+        window.updateFromMixer = function(a,chIndex,val){
+            model[a][chIndex] = val;
+            pending[a][chIndex] = (a===currentAux) ? false : pending[a][chIndex];
+            if(a===currentAux) updateSpan();
         };
     })(currentAux,i-1,valueSpan,decButton,incButton);
 }
@@ -339,6 +345,11 @@ mainSlider.oninput = function() {
 // Dialog
 function openDialog(id){ document.getElementById(id).style.display='block'; }
 function closeDialog(id){ document.getElementById(id).style.display='none'; }
+
+// Esempio: simulare messaggio dal mixer
+function simulateMixerMessage(aux, ch, val){
+    updateFromMixer(aux, ch, val);
+}
 </script>
 </body>
 </html>
