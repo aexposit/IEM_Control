@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Griglia 20 celle dark con dialog</title>
+<title>Griglia 20 celle dark con binding</title>
 <style>
 html, body {
     margin: 0;
@@ -68,7 +68,7 @@ html, body {
     font-weight: bold;
 }
 
-/* Footer elementi */
+/* Footer */
 #footer { 
     bottom: 0; 
     display: flex; 
@@ -111,7 +111,7 @@ html, body {
     line-height: 1.2;
     box-sizing: border-box;
     background-color: #2c2c2c;
-    padding: 1px;
+    padding: 2px;
 }
 
 .row-bottom {
@@ -122,7 +122,7 @@ html, body {
     background-color: #121212;
     color: #fff;
     box-sizing: border-box;
-    padding: 1px;
+    padding: 2px;
     overflow: hidden;
 }
 
@@ -140,7 +140,7 @@ html, body {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
-    padding: 1px;
+    padding: 2px;
 }
 
 .slider-container div:first-child,
@@ -173,7 +173,12 @@ html, body {
     background-color: #121212;
     color: #fff;
     font-size: 14px;
+    line-height: normal;
 }
+
+/* Stati valori */
+.value-sync { color: #00ff66; }
+.value-pending { color: orange; }
 
 /* Dialog */
 .dialog {
@@ -222,7 +227,6 @@ html, body {
     <span id="slider-value">0.00</span>
 </div>
 
-<!-- Dialog 1: Config -->
 <div id="config-dialog" class="dialog">
     <div id="config-dialog-content" class="dialog-content">
         <p id="config-dialog-text">Configurazioni generali</p>
@@ -230,7 +234,6 @@ html, body {
     </div>
 </div>
 
-<!-- Dialog 2: Log -->
 <div id="log-dialog" class="dialog">
     <div id="log-dialog-content" class="dialog-content">
         <p id="log-dialog-text">Registro eventi</p>
@@ -239,11 +242,26 @@ html, body {
 </div>
 
 <script>
-// Genera 20 celle
-var totalCells = 20;
+// MODELLO
+var auxCount = 10;
+var chCount = 20;
+var currentAux = 0;
+var model = [];
+var pending = [];
+
+for (var a = 0; a < auxCount; a++) {
+    model[a] = [];
+    pending[a] = [];
+    for (var c = 0; c < chCount; c++) {
+        model[a][c] = 0.0;
+        pending[a][c] = false;
+    }
+}
+
+// CREA GRIGLIA
 var wrapper = document.getElementById('grid-wrapper');
 
-for (var i = 1; i <= totalCells; i++) {
+for (var i = 1; i <= chCount; i++) {
     var cell = document.createElement('div');
     cell.className = 'cell';
     cell.id = 'cell_wrapper_' + i;
@@ -270,7 +288,8 @@ for (var i = 1; i <= totalCells; i++) {
     var valueDiv = document.createElement('div');
     var valueSpan = document.createElement('span');
     valueSpan.id = 'fader_value_' + i;
-    valueSpan.textContent = '0.00';
+    valueSpan.textContent = model[currentAux][i-1].toFixed(2);
+    valueSpan.className = 'value-sync';
     valueDiv.appendChild(valueSpan);
 
     var btnIncDiv = document.createElement('div');
@@ -288,42 +307,38 @@ for (var i = 1; i <= totalCells; i++) {
     cell.appendChild(rowBottom);
     wrapper.appendChild(cell);
 
-    // Incremento/decremento
-    (function(v, decBtn, incBtn){
+    // Binding bidirezionale
+    (function(aux,ch,span,decBtn,incBtn){
         var step = 0.05;
-        var min = 0;
-        var max = 1;
-        var currentValue = 0;
-
-        decBtn.addEventListener('click', function() {
-            currentValue -= step;
-            if (currentValue < min) currentValue = min;
-            v.textContent = currentValue.toFixed(2);
-        });
-
-        incBtn.addEventListener('click', function() {
-            currentValue += step;
-            if (currentValue > max) currentValue = max;
-            v.textContent = currentValue.toFixed(2);
-        });
-    })(valueSpan, decButton, incButton);
+        function updateSpan(){
+            span.textContent = model[aux][ch].toFixed(2);
+            span.className = 'value-' + (pending[aux][ch] ? 'pending' : 'sync');
+        }
+        decBtn.onclick = function(){
+            model[aux][ch] -= step;
+            if(model[aux][ch]<0) model[aux][ch]=0;
+            pending[aux][ch]=true;
+            updateSpan();
+        };
+        incBtn.onclick = function(){
+            model[aux][ch] += step;
+            if(model[aux][ch]>1) model[aux][ch]=1;
+            pending[aux][ch]=true;
+            updateSpan();
+        };
+    })(currentAux,i-1,valueSpan,decButton,incButton);
 }
 
 // Footer slider principale
 var mainSlider = document.getElementById('slider-range');
 var mainSliderValue = document.getElementById('slider-value');
-mainSlider.addEventListener('input', function() {
+mainSlider.oninput = function() {
     mainSliderValue.textContent = parseFloat(mainSlider.value).toFixed(2);
-});
+};
 
-// Funzioni dialog
-function openDialog(id) {
-    document.getElementById(id).style.display = 'block';
-}
-function closeDialog(id) {
-    document.getElementById(id).style.display = 'none';
-}
+// Dialog
+function openDialog(id){ document.getElementById(id).style.display='block'; }
+function closeDialog(id){ document.getElementById(id).style.display='none'; }
 </script>
-
 </body>
 </html>
