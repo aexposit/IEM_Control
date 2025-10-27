@@ -69,6 +69,9 @@ html, body {
   bottom:0; display:flex; justify-content:space-between; align-items:center; padding:0;
 }
 
+
+
+
 #slider-label { width:20%; text-align:center; }
 #slider-range { width:60%; }
 #slider-value { width:20%; text-align:center; }
@@ -216,6 +219,7 @@ html, body {
   
   <div id="header-right">
     <button id="listenButton" class="header-btn">🎧 Listen</button>
+    <button id="fullscreen-btn" class="header-btn">⛶</button>
   </div>
 </div>
   
@@ -465,6 +469,27 @@ document.getElementById('listenButton').addEventListener('click', function() {
 document.getElementById('listen-dialog-close').addEventListener('click', function() {
   closeDialog('listen-dialog');
 });
+
+
+document.getElementById('fullscreen-btn').onclick = function () {
+  const doc = document.documentElement;
+  if (!document.fullscreenElement && 
+      !document.webkitFullscreenElement && 
+      !document.mozFullScreenElement && 
+      !document.msFullscreenElement) {
+    // Entra in fullscreen
+    if (doc.requestFullscreen) doc.requestFullscreen();
+    else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+    else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+    else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+  } else {
+    // Esci dal fullscreen
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+};
 
 
 </script>
