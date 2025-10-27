@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>Griglia 20 celle dark con delegation e log</title>
+<title>UI24R IEM Control</title>
 <style>
 html, body {
   margin: 0; padding: 0;
@@ -168,7 +168,7 @@ html, body {
     <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">Config</button>
     <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">Log</button>
   </div>
-  <div id="header-title">Header Sticky</div>
+  <div id="header-title">UI24R IEM Control</div>
 </div>
 
 <div id="grid-wrapper"></div>
@@ -207,7 +207,8 @@ html, body {
 // MODELLO
 var auxCount = 10;
 var chCount = 20;
-var currentAux = 1;
+var currentAux = { value: 1 };
+
 var model = [], pending = [];
 for(var a=0;a<auxCount;a++){
   model[a]=[]; pending[a]=[];
@@ -241,7 +242,7 @@ for(var i=1;i<=chCount;i++){
   var valueDiv=document.createElement("div");
   var valueSpan=document.createElement("span");
   valueSpan.id="fader_value_"+i;
-  valueSpan.textContent=(model[currentAux][i-1]*10).toFixed(1);
+  valueSpan.textContent=(model[currentAux.value][i-1]*10).toFixed(1);
   valueSpan.className="value-pending";
   valueDiv.appendChild(valueSpan);
 
@@ -267,23 +268,23 @@ wrapper.onclick=function(e){
     var step=0.05;
     var valueSpan=document.getElementById("fader_value_"+(ch+1));
     if(target.textContent==="-" ){
-      model[currentAux][ch]-=step;
-      if(model[currentAux][ch]<0) model[currentAux][ch]=0;
+      model[currentAux.value][ch]-=step;
+      if(model[currentAux.value][ch]<0) model[currentAux.value][ch]=0;
     }else if(target.textContent==="+"){
-      model[currentAux][ch]+=step;
-      if(model[currentAux][ch]>1) model[currentAux][ch]=1;
+      model[currentAux.value][ch]+=step;
+      if(model[currentAux.value][ch]>1) model[currentAux.value][ch]=1;
     }
-    pending[currentAux][ch]=true;
-    valueSpan.textContent = (model[currentAux][ch] * 10).toFixed(1); // 0.00 - 10.00
+    pending[currentAux.value][ch]=true;
+    valueSpan.textContent = (model[currentAux.value][ch] * 10).toFixed(1); // 0.00 - 10.00
     valueSpan.className="value-pending";
-    updateFromUI(currentAux,ch,model[currentAux][ch]);
+    updateFromUI(currentAux.value,ch,model[currentAux.value][ch]);
   }
 };
 
 // FUNZIONI
 function updateFromUI(aux,ch,val){
   console.log("updateFromUI",aux,ch,val);
-  console.log("model",model[currentAux][ch])
+  console.log("model",model[currentAux.value][ch])
 }
 
 function openDialog(id){ document.getElementById(id).style.display="block"; }
@@ -309,13 +310,16 @@ mainSlider.oninput=function(){
 };
 
 var configBtn = document.getElementById('open-config-dialog');
-configBtn.textContent = 'EDIT AUX: ' + currentAux;
+var footerLabel = document.getElementById('slider-label'); // bottone header
+configBtn.textContent = 'EDIT AUX: ' + currentAux.value;
+footerLabel.textContent = "Master AUX: " + currentAux.value;
 
 // genera la lista radio AUX all'apertura del dialog
 // genera la lista radio AUX all'apertura del dialog
 function populateAuxList() {
     var auxList = document.getElementById('aux-list');
     var configBtn = document.getElementById('open-config-dialog'); // bottone header
+    var footerLabel = document.getElementById('slider-label'); // bottone header
     auxList.innerHTML = ''; // reset
 
     for (var i = 1; i <= auxCount; i++) {
@@ -325,12 +329,13 @@ function populateAuxList() {
         radio.type = 'radio';
         radio.name = 'aux';
         radio.value = i;
-        if (i === currentAux) radio.checked = true;
+        if (i === currentAux.value) radio.checked = true;
 
         radio.onchange = function() {
-            currentAux = parseInt(this.value);
-            console.log('currentAux changed to', currentAux);
-            configBtn.textContent = 'EDIT: AUX ' + currentAux;
+            currentAux.value = parseInt(this.value);
+            console.log('currentAux.value changed to', currentAux.value);
+            configBtn.textContent = 'EDIT: AUX ' + currentAux.value;
+            footerLabel.textContent = "Master AUX: " + currentAux.value;
         };
 
         label.appendChild(radio);
@@ -339,7 +344,8 @@ function populateAuxList() {
     }
 
     // Imposta subito il testo del pulsante Config all'apertura del dialog
-    configBtn.textContent = 'EDIT AUX: ' + currentAux;
+    configBtn.textContent = 'EDIT AUX: ' + currentAux.value;
+    footerLabel.textContent = "Master AUX: " + currentAux.value;
 }
 
 // aprendo il dialog config
