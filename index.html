@@ -332,29 +332,44 @@
         var target = e.target || e.srcElement;
         if (target.tagName === "BUTTON") {
           var ch = parseInt(target.getAttribute("data-ch"));
-          var step = 0.5;
+          var step = 0.05; // incremento in scala 0–1
           var valueSpan = document.getElementById("fader_value_" + (ch + 1));
-          if (target.textContent === "-") {
-            model[currentAux][ch] -= (Math.round((step / 10) * 100) / 100);
+
+          if (target.innerText === "-") {
+            model[currentAux][ch] -= step;
             if (model[currentAux][ch] < 0) model[currentAux][ch] = 0;
-          } else if (target.textContent === "+") {
-            model[currentAux][ch] += (Math.round((step / 10) * 100) / 100);
+          } else if (target.innerText === "+") {
+            model[currentAux][ch] += step;
             if (model[currentAux][ch] > 1) model[currentAux][ch] = 1;
           }
+
+          // Arrotonda il valore del model a 2 decimali
+          model[currentAux][ch] = Math.round(model[currentAux][ch] * 100) / 100;
+
+          // Marca pending e aggiorna lo span
           pending[currentAux][ch] = true;
-          valueSpan.textContent = (model[currentAux][ch] * 10).toFixed(1);
+          valueSpan.innerText = (model[currentAux][ch] * 10).toFixed(2);
           valueSpan.className = "value-pending";
+
+          // Notifica verso mixer
           updateFromUI(currentAux, ch, model[currentAux][ch]);
         }
       };
 
-      // Placeholder funzione updateFromUI
-      function updateFromUI(aux, ch, val) {
-        // log o invio al mixer
-        console.log("updateFromUI", aux, ch, val);
-        console.log("model", aux, ch, model[currentAux][ch]);
-      }
+      // Aggiornamento dal mixer → sincronizza il model e lo span se è l’aux corrente
+      function updateFromMixer(aux, chIndex, val) {
+        model[aux][chIndex] = val;
+        model[aux][chIndex] = Math.round(val * 100) / 100; // sicurezza
+        pending[aux][chIndex] = false;
 
+        if (aux === currentAux) {
+          var span = document.getElementById("fader_value_" + (chIndex + 1));
+          if (span) {
+            span.innerText = (val * 10).toFixed(2);
+            span.className = "value-sync";
+          }
+        }
+      }
       // Footer slider principale
       var mainSlider = document.getElementById("slider-range");
       var mainSliderValue = document.getElementById("slider-value");
