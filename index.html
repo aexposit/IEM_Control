@@ -25,18 +25,38 @@ html, body {
 }
 
 #header {
-  top:0; display:flex; align-items:center; position:relative;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ← spinge i gruppi ai lati */
+  position: fixed;
+  width: 100%;
+  padding: 0 5px;
+  box-sizing: border-box;
 }
 
-#header-left {
-  display:flex; flex-shrink:0; margin-left:5px;
+#header-left, #header-right {
+  display: flex;
+  align-items: center;
 }
+
+#header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-weight: bold;
+}
+
+
 
 .header-btn {
   background-color:#3a3a3a; color:#fff; border:1px solid #555;
   margin-right:5px; padding:0 8px; height:28px; font-size:14px;
   cursor:pointer;
 }
+
+
 
 .header-btn:active { background-color:#505050; }
 
@@ -165,10 +185,17 @@ html, body {
 
 <div id="header">
   <div id="header-left">
-    <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">Config</button>
-    <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">Log</button>
+    <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">✏️</button>
+    <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">⚡</button>
   </div>
+  
   <div id="header-title">UI24R IEM Control</div>
+  
+  <div id="header-right">
+    <button id="listenButton" class="header-btn">🎧 Listen</button>
+  </div>
+</div>
+  
 </div>
 
 <div id="grid-wrapper"></div>
@@ -200,6 +227,14 @@ html, body {
     <textarea id="log-area" readonly style="width:100%; height:150px; background:#1a1a1a; color:#fff; border:1px solid #555; resize:none; overflow-y:scroll;"></textarea>
     
     <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+  </div>
+</div>
+
+<div id="listen-dialog" class="dialog">
+  <div class="dialog-content">
+    <h3>Listen Mode</h3>
+    <p>Qui puoi attivare la modalità di ascolto o impostare parametri audio.</p>
+    <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Chiudi</button>
   </div>
 </div>
 
@@ -311,7 +346,7 @@ mainSlider.oninput=function(){
 
 var configBtn = document.getElementById('open-config-dialog');
 var footerLabel = document.getElementById('slider-label'); // bottone header
-configBtn.textContent = 'EDIT AUX: ' + currentAux.value;
+configBtn.textContent = '✏️  AUX: ' + currentAux.value;
 footerLabel.textContent = "Master AUX: " + currentAux.value;
 
 // genera la lista radio AUX all'apertura del dialog
@@ -334,7 +369,7 @@ function populateAuxList() {
         radio.onchange = function() {
             currentAux.value = parseInt(this.value);
             console.log('currentAux.value changed to', currentAux.value);
-            configBtn.textContent = 'EDIT: AUX ' + currentAux.value;
+            configBtn.textContent = '✏️ : AUX ' + currentAux.value;
             footerLabel.textContent = "Master AUX: " + currentAux.value;
         };
 
@@ -344,7 +379,7 @@ function populateAuxList() {
     }
 
     // Imposta subito il testo del pulsante Config all'apertura del dialog
-    configBtn.textContent = 'EDIT AUX: ' + currentAux.value;
+    configBtn.textContent = '✏️  AUX: ' + currentAux.value;
     footerLabel.textContent = "Master AUX: " + currentAux.value;
 }
 
@@ -353,6 +388,21 @@ function openDialog(id) {
     document.getElementById(id).style.display = 'block';
     if(id === 'config-dialog') populateAuxList();
 }
+
+
+const listenDialog = document.getElementById('listenDialog');
+const listenButton = document.getElementById('listenButton');
+const closeListenDialog = document.getElementById('closeListenDialog');
+
+// Al posto di: listenDialog.showModal();
+document.getElementById('listenButton').addEventListener('click', function() {
+  openDialog('listen-dialog');
+});
+
+// Al posto di: listenDialog.close();
+document.getElementById('listen-dialog-close').addEventListener('click', function() {
+  closeDialog('listen-dialog');
+});
 </script>
 
 
