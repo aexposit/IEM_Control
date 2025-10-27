@@ -179,6 +179,29 @@ html, body {
     margin-left: auto;
     margin-right: auto; /* centra il pulsante */
 }
+
+#listen-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 0;
+  margin: 10px 0;
+}
+
+#listen-list label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #fff;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+#listen-list input[type="radio"] {
+  margin-right: 8px;
+  accent-color: orange; /* colore del pallino */
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -232,8 +255,8 @@ html, body {
 
 <div id="listen-dialog" class="dialog">
   <div class="dialog-content">
-    <h3>Listen Mode</h3>
-    <p>Qui puoi attivare la modalità di ascolto o impostare parametri audio.</p>
+    <p>Seleziona sorgente:</p>
+    <div id="listen-list"></div>
     <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Chiudi</button>
   </div>
 </div>
@@ -389,6 +412,45 @@ function openDialog(id) {
     if(id === 'config-dialog') populateAuxList();
 }
 
+// Funzione dummy chiamata quando cambia l'opzione
+function onListenOptionChange(value) {
+    console.log("Opzione selezionata:", value);
+    // qui puoi mettere la tua funzione reale
+}
+
+
+function populateListenList() {
+    const list = document.getElementById('listen-list');
+    list.innerHTML = ''; // reset
+
+    for (let i = 0; i <= 10; i++) {
+        const id = 'listen-option-' + i;
+        const label = document.createElement('label');
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'listenOption';
+        radio.value = i;
+        radio.id = id;
+
+        if (i === currentAux.value) radio.checked = true;
+
+        radio.onchange = function() {
+            onListenOptionChange(this.value);
+        };
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(i === 0 ? 'Main PA' : `AUX ${i}`));
+        list.appendChild(label);
+    }
+}
+
+// Aprendo il dialog, popola la select
+// Aprendo il dialog, popola la lista
+document.getElementById('listenButton').addEventListener('click', function() {
+    openDialog('listen-dialog');
+    populateListenList();
+});
 
 const listenDialog = document.getElementById('listenDialog');
 const listenButton = document.getElementById('listenButton');
@@ -403,6 +465,8 @@ document.getElementById('listenButton').addEventListener('click', function() {
 document.getElementById('listen-dialog-close').addEventListener('click', function() {
   closeDialog('listen-dialog');
 });
+
+
 </script>
 
 
