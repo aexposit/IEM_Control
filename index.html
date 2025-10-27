@@ -1,389 +1,269 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-    <title>Griglia 20 celle dark con delegation</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        font-family: Arial, sans-serif;
-        overflow: hidden;
-        background-color: #121212;
-        color: #fff;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-      }
-      #header,
-      #footer {
-        height: 40px;
-        line-height: 40px;
-        background-color: #1f1f1f;
-        color: #fff;
-        position: fixed;
-        width: 100%;
-        left: 0;
-        z-index: 10;
-      }
-      #header {
-        top: 0;
-        display: flex;
-        align-items: center;
-        position: relative;
-      }
-      #header-left {
-        display: flex;
-        flex-shrink: 0;
-        margin-left: 5px;
-      }
-      .header-btn {
-        background-color: #3a3a3a;
-        color: #fff;
-        border: 1px solid #555;
-        margin-right: 5px;
-        padding: 0 8px;
-        height: 28px;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      .header-btn:active {
-        background-color: #505050;
-      }
-      #header-title {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        font-weight: bold;
-      }
-      #footer {
-        bottom: 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0;
-      }
-      #slider-label {
-        width: 20%;
-        text-align: center;
-      }
-      #slider-range {
-        width: 60%;
-      }
-      #slider-value {
-        width: 20%;
-        text-align: center;
-      }
-      #grid-wrapper {
-        position: absolute;
-        top: 40px;
-        bottom: 40px;
-        left: 0;
-        right: 0;
-      }
-      /* Celle */
-      .cell {
-        float: left;
-        width: 20%;
-        height: 25%;
-        border: 1px solid #0d8726;
-        background-color: #1a1a1a;
-        box-sizing: border-box;
-        display: block;
-        color: #fff;
-      }
-      .row-top {
-        height: 25%;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        font-size: 20px;
-        align-items: center;
-        box-sizing: border-box;
-        background-color: #2c2c2c;
-        padding: 2px;
-      }
-      .row-bottom {
-        height: 75%;
-        width: 100%;
-        display: block;
-        text-align: center;
-        background-color: #121212;
-        color: #fff;
-        box-sizing: border-box;
-        padding: 2px;
-        overflow: hidden;
-      }
-      /* Slider container con table layout */
-      .slider-container {
-        display: table;
-        width: 100%;
-        height: 100%;
-        background-color: #1a1a1a;
-        border-collapse: collapse;
-        font-size: 20px;
-      }
-      .slider-container div {
-        display: table-cell;
-        vertical-align: middle;
-        text-align: center;
-        padding: 2px;
-      }
-      .slider-container div:first-child,
-      .slider-container div:last-child {
-        width: 40%;
-      }
-      .slider-container div:nth-child(2) {
-        width: 20%;
-      }
-      .slider-container button {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-        font-size: 25px;
-        background-color: #3a3a3a;
-        color: #fff;
-        border: 1px solid #555;
-        cursor: pointer;
-      }
-      .slider-container button:active {
-        background-color: #505050;
-      }
-      .slider-container span {
-        width: 100%;
-        display: block;
-        background-color: #121212;
-        color: orange;
-        font-size: 30px;
-        line-height: normal;
-      }
-      /* Stati valori */
-      .value-sync {
-        color: #00ff66;
-      }
-      .value-pending {
-        color: orange;
-      }
-      /* Dialog */
-      .dialog {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
-      }
-      .dialog-content {
-        width: 80%;
-        max-width: 300px;
-        margin: 100px auto;
-        background-color: #1a1a1a;
-        color: #fff;
-        padding: 20px;
-        border: 1px solid #444;
-        text-align: center;
-      }
-      .close-btn {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #2c2c2c;
-        color: #fff;
-        border: 1px solid #444;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="header">
-      <div id="header-left">
-        <button
-          id="open-config-dialog"
-          class="header-btn"
-          onclick="openDialog('config-dialog')"
-        >
-          Config
-        </button>
-        <button
-          id="open-log-dialog"
-          class="header-btn"
-          onclick="openDialog('log-dialog')"
-        >
-          Log
-        </button>
-      </div>
-      <div id="header-title">Header Sticky</div>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Griglia 20 celle dark con delegation e log</title>
+<style>
+html, body {
+  margin: 0; padding: 0;
+  height: 100%; width: 100%;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  background-color: #121212;
+  color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+#header, #footer {
+  height: 40px; line-height:40px;
+  background-color: #1f1f1f; color:#fff;
+  position: fixed; width:100%; left:0; z-index:10;
+}
+
+#header {
+  top:0; display:flex; align-items:center; position:relative;
+}
+
+#header-left {
+  display:flex; flex-shrink:0; margin-left:5px;
+}
+
+.header-btn {
+  background-color:#3a3a3a; color:#fff; border:1px solid #555;
+  margin-right:5px; padding:0 8px; height:28px; font-size:14px;
+  cursor:pointer;
+}
+
+.header-btn:active { background-color:#505050; }
+
+#header-title {
+  position:absolute; left:50%; transform:translateX(-50%);
+  text-align:center; font-weight:bold;
+}
+
+#footer {
+  bottom:0; display:flex; justify-content:space-between; align-items:center; padding:0;
+}
+
+#slider-label { width:20%; text-align:center; }
+#slider-range { width:60%; }
+#slider-value { width:20%; text-align:center; }
+
+#grid-wrapper {
+  position:absolute; top:40px; bottom:40px; left:0; right:0;
+}
+
+.cell {
+  float:left; width:20%; height:25%;
+  border:1px solid #0d8726; background-color:#1a1a1a;
+  box-sizing:border-box; display:block; color:#fff;
+}
+
+.row-top {
+  height:25%; width:100%;
+  display:flex; justify-content:center; align-items:center;
+  font-size:20px; box-sizing:border-box;
+  background-color:#2c2c2c; padding:2px;
+}
+
+.row-bottom {
+  height:75%; width:100%; display:block; text-align:center;
+  background-color:#121212; color:#fff; box-sizing:border-box; padding:2px; overflow:hidden;
+}
+
+.slider-container {
+  display:table; width:100%; height:100%;
+  background-color:#1a1a1a; border-collapse:collapse; font-size:20px;
+}
+
+.slider-container div {
+  display:table-cell; vertical-align:middle; text-align:center; padding:2px;
+}
+
+.slider-container div:first-child, .slider-container div:last-child { width:40%; }
+.slider-container div:nth-child(2) { width:20%; }
+
+.slider-container button {
+  width:100%; height:100%; box-sizing:border-box;
+  font-size:25px; background-color:#3a3a3a; color:#fff; border:1px solid #555; cursor:pointer;
+}
+
+.slider-container button:active { background-color:#505050; }
+
+.slider-container span {
+  width:100%; display:block;
+  background-color:#121212; color:orange;
+  font-size:30px; line-height:normal;
+}
+
+.value-sync { color:#00ff66; }
+.value-pending { color:orange; }
+
+.dialog {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background-color:rgba(0,0,0,0.7); z-index:1000;
+}
+
+.dialog-content {
+  width:80%; max-width:300px;
+  margin:20px auto 0 auto; /* 20px distanza dall'alto, auto centrato orizzontalmente */
+  background-color:#1a1a1a; color:#fff;
+  padding:20px; border:1px solid #444; text-align:center;
+}
+
+.close-btn {
+  margin-top:10px; padding:5px 10px;
+  background-color:#2c2c2c; color:#fff; border:1px solid #444;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-left">
+    <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">Config</button>
+    <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">Log</button>
+  </div>
+  <div id="header-title">Header Sticky</div>
+</div>
+
+<div id="grid-wrapper"></div>
+
+<div id="footer">
+  <label for="slider-range" id="slider-label">Master AUX</label>
+  <input type="range" id="slider-range" min="0" max="1" step="0.01" value="0" />
+  <span id="slider-value">0.00</span>
+</div>
+
+<div id="config-dialog" class="dialog">
+  <div id="config-dialog-content" class="dialog-content">
+    <p id="config-dialog-text">Configurazioni generali</p>
+    <button id="config-dialog-close" class="close-btn" onclick="closeDialog('config-dialog')">Chiudi</button>
+  </div>
+</div>
+
+<div id="log-dialog" class="dialog">
+  <div id="log-dialog-content" class="dialog-content">
+    <div style="display:flex; align-items:center; margin-bottom:5px;">
+      <label for="mixer-ip" style="flex:1;">IP Mixer:</label>
+      <input type="text" id="mixer-ip" style="flex:2; margin-right:5px;" />
+      <button id="connect-btn" style="flex:1;" onclick="connectToMixer()">Connetti</button>
     </div>
+    <textarea id="log-area" readonly style="width:100%; height:150px; background:#1a1a1a; color:#fff; border:1px solid #555; resize:none; overflow-y:scroll;"></textarea>
+    
+    <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+  </div>
+</div>
 
-    <div id="grid-wrapper"></div>
+<script>
+// MODELLO
+var auxCount = 10;
+var chCount = 20;
+var currentAux = 0;
+var model = [], pending = [];
+for(var a=0;a<auxCount;a++){
+  model[a]=[]; pending[a]=[];
+  for(var c=0;c<chCount;c++){
+    model[a][c]=0.0;
+    pending[a][c]=true;
+  }
+}
 
-    <div id="footer">
-      <label for="slider-range" id="slider-label">Master AUX</label>
-      <input
-        type="range"
-        id="slider-range"
-        min="0"
-        max="10"
-        step="0.5"
-        value="0"
-      />
-      <span id="slider-value">0</span>
-    </div>
+// CREA GRIGLIA
+var wrapper = document.getElementById("grid-wrapper");
+for(var i=1;i<=chCount;i++){
+  var cell=document.createElement("div");
+  cell.className="cell"; cell.id="cell_wrapper_"+i;
 
-    <div id="config-dialog" class="dialog">
-      <div id="config-dialog-content" class="dialog-content">
-        <p id="config-dialog-text">Configurazioni generali</p>
-        <button
-          id="config-dialog-close"
-          class="close-btn"
-          onclick="closeDialog('config-dialog')"
-        >
-          Chiudi
-        </button>
-      </div>
-    </div>
+  var rowTop=document.createElement("div");
+  rowTop.className="row-top"; rowTop.id="ch_name_"+i;
+  rowTop.textContent="Top "+i;
 
-    <div id="log-dialog" class="dialog">
-      <div id="log-dialog-content" class="dialog-content">
-        <p id="log-dialog-text">Connessione al mixer</p>
-        <button
-          id="log-dialog-close"
-          class="close-btn"
-          onclick="closeDialog('log-dialog')"
-        >
-          Chiudi
-        </button>
-      </div>
-    </div>
+  var rowBottom=document.createElement("div");
+  rowBottom.className="row-bottom"; rowBottom.id="fader_"+i;
 
-    <script>
-      // MODELLO
-      var auxCount = 10;
-      var chCount = 20;
-      var currentAux = 1;
-      var model = [],
-        pending = [];
+  var container=document.createElement("div");
+  container.className="slider-container"; container.id="slider_container_"+i;
 
-      for (var a = 0; a < auxCount; a++) {
-        model[a] = [];
-        pending[a] = [];
-        for (var c = 0; c < chCount; c++) {
-          model[a][c] = 0.0;
-          pending[a][c] = true; // inizialmente tutto pending
-        }
-      }
+  var btnDecDiv=document.createElement("div");
+  var decButton=document.createElement("button");
+  decButton.textContent="-"; decButton.setAttribute("data-ch",i-1);
+  btnDecDiv.appendChild(decButton);
 
-      // CREA GRIGLIA
-      var wrapper = document.getElementById("grid-wrapper");
-      for (var i = 1; i <= chCount; i++) {
-        var cell = document.createElement("div");
-        cell.className = "cell";
-        cell.id = "cell_wrapper_" + i;
+  var valueDiv=document.createElement("div");
+  var valueSpan=document.createElement("span");
+  valueSpan.id="fader_value_"+i;
+  valueSpan.textContent=(model[currentAux][i-1]*10).toFixed(1);
+  valueSpan.className="value-pending";
+  valueDiv.appendChild(valueSpan);
 
-        var rowTop = document.createElement("div");
-        rowTop.className = "row-top";
-        rowTop.id = "ch_name_" + i;
-        rowTop.textContent = "Top " + i;
-        var rowBottom = document.createElement("div");
-        rowBottom.className = "row-bottom";
-        rowBottom.id = "fader_" + i;
+  var btnIncDiv=document.createElement("div");
+  var incButton=document.createElement("button");
+  incButton.textContent="+"; incButton.setAttribute("data-ch",i-1);
+  btnIncDiv.appendChild(incButton);
 
-        var container = document.createElement("div");
-        container.className = "slider-container";
-        container.id = "slider_container_" + i;
+  container.appendChild(btnDecDiv);
+  container.appendChild(valueDiv);
+  container.appendChild(btnIncDiv);
+  rowBottom.appendChild(container);
+  cell.appendChild(rowTop);
+  cell.appendChild(rowBottom);
+  wrapper.appendChild(cell);
+}
 
-        var btnDecDiv = document.createElement("div");
-        var decButton = document.createElement("button");
-        decButton.textContent = "-";
-        decButton.setAttribute("data-ch", i - 1);
-        btnDecDiv.appendChild(decButton);
-        var valueDiv = document.createElement("div");
-        var valueSpan = document.createElement("span");
-        valueSpan.id = "fader_value_" + i;
-        valueSpan.textContent = model[currentAux][i - 1].toFixed(1);
-        valueSpan.className = "value-pending";
-        valueDiv.appendChild(valueSpan);
-        var btnIncDiv = document.createElement("div");
-        var incButton = document.createElement("button");
-        incButton.textContent = "+";
-        incButton.setAttribute("data-ch", i - 1);
-        btnIncDiv.appendChild(incButton);
+// EVENT DELEGATION
+wrapper.onclick=function(e){
+  var target=e.target||e.srcElement;
+  if(target.tagName==="BUTTON"){
+    var ch=parseInt(target.getAttribute("data-ch"));
+    var step=0.05;
+    var valueSpan=document.getElementById("fader_value_"+(ch+1));
+    if(target.textContent==="-" ){
+      model[currentAux][ch]-=step;
+      if(model[currentAux][ch]<0) model[currentAux][ch]=0;
+    }else if(target.textContent==="+"){
+      model[currentAux][ch]+=step;
+      if(model[currentAux][ch]>1) model[currentAux][ch]=1;
+    }
+    pending[currentAux][ch]=true;
+    valueSpan.textContent = (model[currentAux][ch] * 10).toFixed(1); // 0.00 - 10.00
+    valueSpan.className="value-pending";
+    updateFromUI(currentAux,ch,model[currentAux][ch]);
+  }
+};
 
-        container.appendChild(btnDecDiv);
-        container.appendChild(valueDiv);
-        container.appendChild(btnIncDiv);
-        rowBottom.appendChild(container);
-        cell.appendChild(rowTop);
-        cell.appendChild(rowBottom);
-        wrapper.appendChild(cell);
-      }
+// FUNZIONI
+function updateFromUI(aux,ch,val){
+  console.log("updateFromUI",aux,ch,val);
+  console.log("model",model[currentAux][ch])
+}
 
-      // EVENT DELEGATION
-      wrapper.onclick = function (e) {
-        var target = e.target || e.srcElement;
-        if (target.tagName === "BUTTON") {
-          var ch = parseInt(target.getAttribute("data-ch"));
-          var step = 0.05; // incremento in scala 0–1
-          var valueSpan = document.getElementById("fader_value_" + (ch + 1));
+function openDialog(id){ document.getElementById(id).style.display="block"; }
+function closeDialog(id){ document.getElementById(id).style.display="none"; }
 
-          if (target.innerText === "-") {
-            model[currentAux][ch] -= step;
-            if (model[currentAux][ch] < 0) model[currentAux][ch] = 0;
-          } else if (target.innerText === "+") {
-            model[currentAux][ch] += step;
-            if (model[currentAux][ch] > 1) model[currentAux][ch] = 1;
-          }
+function connectToMixer(){
+  var ip=document.getElementById("mixer-ip").value;
+  appendLog("Tentativo connessione a "+ip);
+  setTimeout(function(){ appendLog("Connesso a "+ip); }, 500);
+}
 
-          // Arrotonda il valore del model a 2 decimali
-          model[currentAux][ch] = Math.round(model[currentAux][ch] * 100) / 100;
+function appendLog(msg){
+  var area=document.getElementById("log-area");
+  area.value += msg + "\n";
+  area.scrollTop = area.scrollHeight;
+}
 
-          // Marca pending e aggiorna lo span
-          pending[currentAux][ch] = true;
-          valueSpan.innerText = (model[currentAux][ch] * 10).toFixed(2);
-          valueSpan.className = "value-pending";
+// Footer slider principale
+var mainSlider=document.getElementById("slider-range");
+var mainSliderValue=document.getElementById("slider-value");
+mainSlider.oninput=function(){
+  mainSliderValue.textContent=(mainSlider.value*10).toFixed(2);
+};
+</script>
 
-          // Notifica verso mixer
-          updateFromUI(currentAux, ch, model[currentAux][ch]);
-        }
-      };
-
-      // Aggiornamento dal mixer → sincronizza il model e lo span se è l’aux corrente
-      function updateFromMixer(aux, chIndex, val) {
-        model[aux][chIndex] = val;
-        model[aux][chIndex] = Math.round(val * 100) / 100; // sicurezza
-        pending[aux][chIndex] = false;
-
-        if (aux === currentAux) {
-          var span = document.getElementById("fader_value_" + (chIndex + 1));
-          if (span) {
-            span.innerText = (val * 10).toFixed(2);
-            span.className = "value-sync";
-          }
-        }
-      }
-      // Footer slider principale
-      var mainSlider = document.getElementById("slider-range");
-      var mainSliderValue = document.getElementById("slider-value");
-      mainSlider.oninput = function () {
-        mainSliderValue.textContent = parseFloat(mainSlider.value);
-      };
-
-      // Dialog
-      function openDialog(id) {
-        document.getElementById(id).style.display = "block";
-      }
-      function closeDialog(id) {
-        document.getElementById(id).style.display = "none";
-      }
-    </script>
-  </body>
+</body>
 </html>
