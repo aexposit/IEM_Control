@@ -1,501 +1,819 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>UI24R IEM Control</title>
-<style>
-html, body {
-  margin: 0; padding: 0;
-  height: 100%; width: 100%;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
-  background-color: #121212;
-  color: #fff;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="icon" href="data:,">
+  <title>UI24R IEM Control</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      padding-bottom: 10px;
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      background-color: #121212;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
 
-#header, #footer {
-  height: 40px; line-height:40px;
-  background-color: #1f1f1f; color:#fff;
-  position: fixed; width:100%; left:0; z-index:10;
-}
+    #header,
+    #footer {
+      height: 40px;
+      line-height: 40px;
+      background-color: #1f1f1f;
+      color: #fff;
+      position: fixed;
+      width: 100%;
+      left: 0;
+      z-index: 10;
+    }
 
-#header {
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* ← spinge i gruppi ai lati */
-  position: fixed;
-  width: 100%;
-  padding: 0 5px;
-  box-sizing: border-box;
-}
+    #header {
+      top: 10px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      /* ← spinge i gruppi ai lati */
+      position: fixed;
+      width: 100%;
+      padding: 0 5px;
+      box-sizing: border-box;
+    }
 
-#header-left, #header-right {
-  display: flex;
-  align-items: center;
-}
+    #header-left,
+    #header-right {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+    }
 
-#header-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  font-weight: bold;
-}
+    #header-title {
+      position: absolute;
+      left: 50%;
+      -webkit-transform: translateX(-50%);
+      transform: translateX(-50%);
+      text-align: center;
+      font-weight: bold;
+    }
 
+    .header-btn {
+      background-color: #3a3a3a;
+      color: #fff;
+      border: 1px solid #555;
+      margin-right: 5px;
+      padding: 0 8px;
+      height: 28px;
+      font-size: 14px;
+      cursor: pointer;
+    }
 
+    .header-btn:active {
+      background-color: #505050;
+    }
 
-.header-btn {
-  background-color:#3a3a3a; color:#fff; border:1px solid #555;
-  margin-right:5px; padding:0 8px; height:28px; font-size:14px;
-  cursor:pointer;
-}
+    #footer {
+      bottom: 10px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      -webkit-align-items: center;
+      align-items: center;
+      padding: 0;
+    }
 
+    #slider-label {
+      width: 20%;
+      text-align: center;
+    }
 
+    #slider-range {
+      width: 60%;
+    }
 
-.header-btn:active { background-color:#505050; }
+    #slider-value {
+      width: 20%;
+      text-align: center;
+    }
 
-#header-title {
-  position:absolute; left:50%; transform:translateX(-50%);
-  text-align:center; font-weight:bold;
-}
+    #grid-wrapper {
+      position: absolute;
+      top: 55px;
+      bottom: 50px;
+      left: 0;
+      right: 0;
+    }
 
-#footer {
-  bottom:0; display:flex; justify-content:space-between; align-items:center; padding:0;
-}
+    .cell {
+      float: left;
+      width: 20%;
+      height: 25%;
+      border: 1px solid #0d8726;
+      background-color: #1a1a1a;
+      box-sizing: border-box;
+      display: block;
+      color: #fff;
+    }
 
+    .row-top {
+      height: 25%;
+      width: 100%;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: center;
+      justify-content: center;
+      -webkit-align-items: center;
+      align-items: center;
+      font-size: 20px;
+      box-sizing: border-box;
+      background-color: #2c2c2c;
+      padding: 2px;
+    }
 
+    .row-bottom {
+      height: 75%;
+      width: 100%;
+      display: block;
+      text-align: center;
+      background-color: #121212;
+      color: #fff;
+      box-sizing: border-box;
+      padding: 2px;
+      overflow: hidden;
+    }
 
+    .slider-container {
+      display: table;
+      width: 100%;
+      height: 100%;
+      background-color: #1a1a1a;
+      border-collapse: collapse;
+      font-size: 20px;
+    }
 
-#slider-label { width:20%; text-align:center; }
-#slider-range { width:60%; }
-#slider-value { width:20%; text-align:center; }
+    .slider-container div {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      padding: 2px;
+    }
 
-#grid-wrapper {
-  position:absolute; top:40px; bottom:40px; left:0; right:0;
-}
+    .slider-container div:first-child,
+    .slider-container div:last-child {
+      width: 40%;
+    }
 
-.cell {
-  float:left; width:20%; height:25%;
-  border:1px solid #0d8726; background-color:#1a1a1a;
-  box-sizing:border-box; display:block; color:#fff;
-}
+    .slider-container div:nth-child(2) {
+      width: 20%;
+    }
 
-.row-top {
-  height:25%; width:100%;
-  display:flex; justify-content:center; align-items:center;
-  font-size:20px; box-sizing:border-box;
-  background-color:#2c2c2c; padding:2px;
-}
+    .slider-container button {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      font-size: 25px;
+      background-color: #3a3a3a;
+      color: #fff;
+      border: 1px solid #555;
+      cursor: pointer;
+    }
 
-.row-bottom {
-  height:75%; width:100%; display:block; text-align:center;
-  background-color:#121212; color:#fff; box-sizing:border-box; padding:2px; overflow:hidden;
-}
+    .slider-container button:active {
+      background-color: #505050;
+    }
 
-.slider-container {
-  display:table; width:100%; height:100%;
-  background-color:#1a1a1a; border-collapse:collapse; font-size:20px;
-}
+    .slider-container span {
+      width: 100%;
+      display: block;
+      background-color: #121212;
+      color: orange;
+      font-size: 30px;
+      line-height: normal;
+    }
 
-.slider-container div {
-  display:table-cell; vertical-align:middle; text-align:center; padding:2px;
-}
+    .value-sync {
+      color: #00ff66;
+    }
 
-.slider-container div:first-child, .slider-container div:last-child { width:40%; }
-.slider-container div:nth-child(2) { width:20%; }
+    .value-pending {
+      color: orange;
+    }
 
-.slider-container button {
-  width:100%; height:100%; box-sizing:border-box;
-  font-size:25px; background-color:#3a3a3a; color:#fff; border:1px solid #555; cursor:pointer;
-}
+    .dialog {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+    }
 
-.slider-container button:active { background-color:#505050; }
+    .dialog-content {
+      width: 80%;
+      max-width: 300px;
+      margin: 20px auto 0 auto;
+      /* 20px distanza dall'alto, auto centrato orizzontalmente */
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 20px;
+      border: 1px solid #444;
+      text-align: center;
+    }
 
-.slider-container span {
-  width:100%; display:block;
-  background-color:#121212; color:orange;
-  font-size:30px; line-height:normal;
-}
+    .close-btn {
+      margin-top: 10px;
+      padding: 5px 10px;
+      background-color: #2c2c2c;
+      color: #fff;
+      border: 1px solid #444;
+    }
 
-.value-sync { color:#00ff66; }
-.value-pending { color:orange; }
+    #config-dialog-content {
+      width: 80%;
+      max-width: 250px;
+      margin: 20px auto 0 auto;
+      /* distanza dall'alto e centrato */
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 15px 10px;
+      border: 1px solid #444;
+      text-align: left;
+      /* testo e lista a sinistra */
+      font-size: 14px;
+    }
 
-.dialog {
-  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-  background-color:rgba(0,0,0,0.7); z-index:1000;
-}
+    #aux-list {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+      padding-left: 0;
+      margin-bottom: 10px;
+    }
 
-.dialog-content {
-  width:80%; max-width:300px;
-  margin:20px auto 0 auto; /* 20px distanza dall'alto, auto centrato orizzontalmente */
-  background-color:#1a1a1a; color:#fff;
-  padding:20px; border:1px solid #444; text-align:center;
-}
+    #aux-list label {
+      margin-bottom: 2px;
+      cursor: pointer;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+    }
 
-.close-btn {
-  margin-top:10px; padding:5px 10px;
-  background-color:#2c2c2c; color:#fff; border:1px solid #444;
-}
+    #aux-list input[type="radio"] {
+      margin-right: 5px;
+    }
 
+    #config-dialog-content p,
+    #config-dialog-content .header-btn {
+      text-align: center;
+      /* centra il testo del paragrafo */
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      /* centra il pulsante */
+    }
 
-#config-dialog-content {
-    width: 80%; 
-    max-width: 250px;
-    margin: 20px auto 0 auto; /* distanza dall'alto e centrato */
-    background-color: #1a1a1a;
-    color: #fff;
-    padding: 15px 10px;
-    border: 1px solid #444;
-    text-align: left; /* testo e lista a sinistra */
-    font-size: 14px;
-}
+    #listen-list {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+      padding-left: 0;
+      margin: 10px 0;
+    }
 
-#aux-list {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-left: 0;
-    margin-bottom: 10px;
-}
+    #listen-list label {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+      cursor: pointer;
+      color: #fff;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
 
-#aux-list label {
-    margin-bottom: 2px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-#aux-list input[type="radio"] {
-    margin-right: 5px;
-}
-
-#config-dialog-content p,
-#config-dialog-content .header-btn {
-    text-align: center; /* centra il testo del paragrafo */
-    display: block;
-    margin-left: auto;
-    margin-right: auto; /* centra il pulsante */
-}
-
-#listen-list {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: 0;
-  margin: 10px 0;
-}
-
-#listen-list label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  color: #fff;
-  margin-bottom: 5px;
-  font-size: 14px;
-}
-
-#listen-list input[type="radio"] {
-  margin-right: 8px;
-  accent-color: orange; /* colore del pallino */
-  cursor: pointer;
-}
-</style>
+    #listen-list input[type="radio"] {
+      margin-right: 8px;
+      /* accent-color not supported in old browsers; ignored */
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="header">
-  <div id="header-left">
-    <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">⚡</button>
-    <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">✏️</button>
-  </div>
-  
-  <div id="header-title">UI24R IEM Control</div>
-  
-  <div id="header-right">
-    <button id="listenButton" class="header-btn">🎧 Listen</button>
-    <button id="fullscreen-btn" class="header-btn">⛶</button>
-  </div>
-</div>
-  
-</div>
-
-<div id="grid-wrapper"></div>
-
-<div id="footer">
-  <label for="slider-range" id="slider-label">Master AUX</label>
-  <input type="range" id="slider-range" min="0" max="10" step="0.5" value="0" />
-  <span id="slider-value">0.0</span>
-</div>
-
-<!-- Config Dialog -->
-<div id="config-dialog" class="dialog">
-  <div id="config-dialog-content" class="dialog-content">
-    <p>Seleziona AUX in EDIT:</p>
-    <div id="aux-list"></div>
-    <button id="config-dialog-close" class="header-btn" onclick="closeDialog('config-dialog')">
-      Chiudi
-    </button>
-  </div>
-</div>
-
-<div id="log-dialog" class="dialog">
-  <div id="log-dialog-content" class="dialog-content">
-    <div style="display:flex; align-items:center; margin-bottom:5px;">
-      <label for="mixer-ip" style="flex:1;">IP Mixer:</label>
-      <input type="text" id="mixer-ip" style="flex:2; margin-right:5px;" />
-      <button id="connect-btn" style="flex:1;" class="header-btn" onclick="connectToMixer()">Connetti</button>
+  <!-- Header -->
+  <div id="header">
+    <div id="header-left">
+      <button id="open-log-dialog" class="header-btn" onclick="openDialog('log-dialog')">⚡</button>
+      <button id="open-config-dialog" class="header-btn" onclick="openDialog('config-dialog')">✏️</button>
     </div>
-    <textarea id="log-area" readonly style="width:100%; height:150px; background:#1a1a1a; color:#fff; border:1px solid #555; resize:none; overflow-y:scroll;"></textarea>
-    
-    <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+
+    <div id="header-title">UI24R IEM Control</div>
+
+    <div id="header-right">
+      <button id="listenButton" class="header-btn" onclick="openDialog('listen-dialog')">🎧 Listen</button>
+      <button id="fullscreen-btn" class="header-btn">⛶</button>
+    </div>
   </div>
-</div>
 
-<div id="listen-dialog" class="dialog">
-  <div class="dialog-content">
-    <p>Seleziona sorgente:</p>
-    <div id="listen-list"></div>
-    <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Chiudi</button>
+  <!-- Griglia -->
+  <div id="grid-wrapper"></div>
+
+  <!-- Footer -->
+  <div id="footer">
+    <label for="slider-range" id="slider-label">AUX Master Volume</label>
+    <input type="range" id="slider-range" min="0" max="10" step="0.2" value="0" />
+    <span id="slider-value">0.0</span>
   </div>
-</div>
 
-<script>
-// MODELLO
-var auxCount = 10;
-var chCount = 20;
-var currentAux = { value: 1 };
+  <!-- AUX choice Dialog -->
+  <div id="config-dialog" class="dialog">
+    <div id="config-dialog-content" class="dialog-content">
+      <p>Seleziona AUX in EDIT:</p>
+      <div id="aux-list"></div>
+      <button id="config-dialog-close" class="header-btn" onclick="closeDialog('config-dialog')">
+        Chiudi
+      </button>
+    </div>
+  </div>
 
-var model = [], pending = [];
-for(var a=0;a<auxCount;a++){
-  model[a]=[]; pending[a]=[];
-  for(var c=0;c<chCount;c++){
-    model[a][c]=0.0;
-    pending[a][c]=true;
-  }
-}
+  <!-- Mixer connection Dialog -->
+  <div id="log-dialog" class="dialog">
+    <div id="log-dialog-content" class="dialog-content">
+      <div
+        style="display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; margin-bottom:5px;">
+        <label for="mixer-ip" style="flex:1;">IP Mixer:</label>
+        <input type="text" id="mixer-ip" style="flex:2; margin-right:5px;" />
+        <button id="connect-btn" style="flex:1;" class="header-btn" onclick="connectToMixer()">Connetti</button>
+      </div>
+      <textarea id="log-area" readonly
+        style="width:100%; height:150px; background:#1a1a1a; color:#fff; border:1px solid #555; resize:none; overflow-y:scroll;"></textarea>
 
-// CREA GRIGLIA
-var wrapper = document.getElementById("grid-wrapper");
-for(var i=1;i<=chCount;i++){
-  var cell=document.createElement("div");
-  cell.className="cell"; cell.id="cell_wrapper_"+i;
+      <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+    </div>
+  </div>
 
-  var rowTop=document.createElement("div");
-  rowTop.className="row-top"; rowTop.id="ch_name_"+i;
-  rowTop.textContent="Top "+i;
+  <!-- Temporary AUX listener Dialog -->
+  <div id="listen-dialog" class="dialog">
+    <div class="dialog-content">
+      <p>Seleziona sorgente:</p>
+      <div id="listen-list"></div>
+      <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Chiudi</button>
+    </div>
+  </div>
 
-  var rowBottom=document.createElement("div");
-  rowBottom.className="row-bottom"; rowBottom.id="fader_"+i;
+  <script>
+    ///////////////////////////
+    // FULL SCREEN MANAGER
+    //////////////////////////
+    document.getElementById('fullscreen-btn').onclick = function () {
+      var doc = document.documentElement;
+      if (!document.fullscreenElement &&
+        !document.webkitFullscreenElement &&
+        !document.mozFullScreenElement &&
+        !document.msFullscreenElement) {
+        // Entra in fullscreen
+        if (doc.requestFullscreen) doc.requestFullscreen();
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+        else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+        else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+      } else {
+        // Esci dal fullscreen
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
+      }
+    };
 
-  var container=document.createElement("div");
-  container.className="slider-container"; container.id="slider_container_"+i;
+    ///////////////////////////
+    // APP INIT
+    ///////////////////////////
+    var socket = null;
+    var auxCount = 10;
+    var chCount = 20;
+    var currentAux = { value: 1 };
+    var auxnames = ["MAIN PA", "AUX1", "AUX2", "AUX3", "AUX4", "AUX5", "AUX6", "AUX7", "AUX8", "AUX9", "AUX10"];
+    var channelnames = ["MASTER", "CHANNEL1", "CHANNEL2", "CHANNEL3", "CHANNEL4", "CHANNEL5", "CHANNEL6", "CHANNEL7", "CHANNEL8", "CHANNEL9", "CHANNEL10", "CHANNEL11", "CHANNEL12", "CHANNEL13", "CHANNEL14", "CHANNEL15", "CHANNEL16", "CHANNEL17", "CHANNEL18", "CHANNEL19", "CHANNEL20"];
+    var configBtn = document.getElementById('open-config-dialog');
+    configBtn.textContent = '✏️ : ' + currentAux.value + "-" + auxnames[currentAux.value];
 
-  var btnDecDiv=document.createElement("div");
-  var decButton=document.createElement("button");
-  decButton.textContent="-"; decButton.setAttribute("data-ch",i-1);
-  btnDecDiv.appendChild(decButton);
+    ///////////////////////////
+    // MODELLO DATI
+    ///////////////////////////
+    var model = [], pending = [];
+    var lastauxstate = [];
 
-  var valueDiv=document.createElement("div");
-  var valueSpan=document.createElement("span");
-  valueSpan.id="fader_value_"+i;
-  valueSpan.textContent=(model[currentAux.value][i-1]*10).toFixed(1);
-  valueSpan.className="value-pending";
-  valueDiv.appendChild(valueSpan);
-
-  var btnIncDiv=document.createElement("div");
-  var incButton=document.createElement("button");
-  incButton.textContent="+"; incButton.setAttribute("data-ch",i-1);
-  btnIncDiv.appendChild(incButton);
-
-  container.appendChild(btnDecDiv);
-  container.appendChild(valueDiv);
-  container.appendChild(btnIncDiv);
-  rowBottom.appendChild(container);
-  cell.appendChild(rowTop);
-  cell.appendChild(rowBottom);
-  wrapper.appendChild(cell);
-}
-
-// EVENT DELEGATION
-wrapper.onclick=function(e){
-  var target=e.target||e.srcElement;
-  if(target.tagName==="BUTTON"){
-    var ch=parseInt(target.getAttribute("data-ch"));
-    var step=0.05;
-    var valueSpan=document.getElementById("fader_value_"+(ch+1));
-    if(target.textContent==="-" ){
-      model[currentAux.value][ch]-=step;
-      if(model[currentAux.value][ch]<0) model[currentAux.value][ch]=0;
-    }else if(target.textContent==="+"){
-      model[currentAux.value][ch]+=step;
-      if(model[currentAux.value][ch]>1) model[currentAux.value][ch]=1;
+    for (var a = 0; a <= auxCount; a++) {
+      model[a] = [];
+      pending[a] = [];
+      lastauxstate[a] = 0.0;
+      for (var c = 0; c <= chCount; c++) {
+        model[a][c] = 0.0;
+        pending[a][c] = true;
+      }
     }
-    pending[currentAux.value][ch]=true;
-    valueSpan.textContent = (model[currentAux.value][ch] * 10).toFixed(1); // 0.00 - 10.00
-    valueSpan.className="value-pending";
-    updateFromUI(currentAux.value,ch,model[currentAux.value][ch]);
-  }
-};
 
-// FUNZIONI
-function updateFromUI(aux,ch,val){
-  console.log("updateFromUI",aux,ch,val);
-  console.log("model",model[currentAux.value][ch])
-}
+    //model[0][0] è PA Master fader
+    //model[0][10] è PA channel fader 10
+    //model[1][0] è AUX1 Master fader
+    //model[1][10] è AUX1 channel fader 10
+    //model[10][0] è AUX10 Master fader
+    //model[10][10] è AUX10 channel fader 10
 
-function openDialog(id){ document.getElementById(id).style.display="block"; }
-function closeDialog(id){ document.getElementById(id).style.display="none"; }
+    ///////////////////////////
+    // CREA DOM GRIGLIA
+    ///////////////////////////
+    var wrapper = document.getElementById("grid-wrapper");
+    for (var i = 1; i <= chCount; i++) {
+      var cell = document.createElement("div");
+      cell.className = "cell";
+      cell.id = "cell_wrapper_" + i;
 
-function connectToMixer(){
-  var ip=document.getElementById("mixer-ip").value;
-  appendLog("Tentativo connessione a "+ip);
-  setTimeout(function(){ appendLog("Connesso a "+ip); }, 500);
-}
+      var rowTop = document.createElement("div");
+      rowTop.className = "row-top";
+      rowTop.id = "ch_name_" + i;
+      rowTop.textContent = channelnames[i];
 
-function appendLog(msg){
-  var area=document.getElementById("log-area");
-  area.value += msg + "\n";
-  area.scrollTop = area.scrollHeight;
-}
+      var rowBottom = document.createElement("div");
+      rowBottom.className = "row-bottom";
+      rowBottom.id = "fader_" + i;
 
-// Footer slider principale
-var mainSlider=document.getElementById("slider-range");
-var mainSliderValue=document.getElementById("slider-value");
-mainSlider.oninput=function(){
-  mainSliderValue.textContent= parseFloat(mainSlider.value).toFixed(1);
-};
+      var container = document.createElement("div");
+      container.className = "slider-container";
+      container.id = "slider_container_" + i;
 
-var configBtn = document.getElementById('open-config-dialog');
-var footerLabel = document.getElementById('slider-label'); // bottone header
-configBtn.textContent = '✏️  AUX: ' + currentAux.value;
-footerLabel.textContent = "Master AUX: " + currentAux.value;
+      var btnDecDiv = document.createElement("div");
+      var decButton = document.createElement("button");
+      decButton.textContent = "-";
+      decButton.setAttribute("data-ch", i);
+      btnDecDiv.appendChild(decButton);
 
-// genera la lista radio AUX all'apertura del dialog
-// genera la lista radio AUX all'apertura del dialog
-function populateAuxList() {
+      var valueDiv = document.createElement("div");
+      var valueSpan = document.createElement("span");
+      valueSpan.id = "fader_value_" + i;
+      valueSpan.textContent = (model[currentAux.value][i] * 10).toFixed(1);
+      valueSpan.className = "value-pending";
+      valueDiv.appendChild(valueSpan);
+
+      var btnIncDiv = document.createElement("div");
+      var incButton = document.createElement("button");
+      incButton.textContent = "+";
+      incButton.setAttribute("data-ch", i);
+      btnIncDiv.appendChild(incButton);
+
+      container.appendChild(btnDecDiv);
+      container.appendChild(valueDiv);
+      container.appendChild(btnIncDiv);
+      rowBottom.appendChild(container);
+      cell.appendChild(rowTop);
+      cell.appendChild(rowBottom);
+      wrapper.appendChild(cell);
+    }
+
+    ///////////////////////////
+    // Crea DOM AUX edit choice
+    ///////////////////////////
     var auxList = document.getElementById('aux-list');
     var configBtn = document.getElementById('open-config-dialog'); // bottone header
     var footerLabel = document.getElementById('slider-label'); // bottone header
     auxList.innerHTML = ''; // reset
 
-    for (var i = 1; i <= auxCount; i++) {
-        var label = document.createElement('label');
-
-        var radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'aux';
-        radio.value = i;
-        if (i === currentAux.value) radio.checked = true;
-
-        radio.onchange = function() {
-            currentAux.value = parseInt(this.value);
-            console.log('currentAux.value changed to', currentAux.value);
-            configBtn.textContent = '✏️ : AUX ' + currentAux.value;
-            footerLabel.textContent = "Master AUX: " + currentAux.value;
-        };
-
-        label.appendChild(radio);
-        label.appendChild(document.createTextNode(' AUX ' + i));
-        auxList.appendChild(label);
+    for (var j = 1; j <= auxCount; j++) {
+      var label = document.createElement('label');
+      var radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'aux';
+      radio.value = j;
+      if (j === currentAux.value) radio.checked = true;
+      radio.addEventListener('change', onAuxEditchange);
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(auxnames[j]));
+      auxList.appendChild(label);
     }
 
-    // Imposta subito il testo del pulsante Config all'apertura del dialog
-    configBtn.textContent = '✏️  AUX: ' + currentAux.value;
-    footerLabel.textContent = "Master AUX: " + currentAux.value;
-}
-
-// aprendo il dialog config
-function openDialog(id) {
-    document.getElementById(id).style.display = 'block';
-    if(id === 'config-dialog') populateAuxList();
-}
-
-// Funzione dummy chiamata quando cambia l'opzione
-function onListenOptionChange(value) {
-    console.log("Opzione selezionata:", value);
-    // qui puoi mettere la tua funzione reale
-}
-
-
-function populateListenList() {
-    const list = document.getElementById('listen-list');
+    ///////////////////////////
+    // Crea DOM temporary AUX listener choice
+    ///////////////////////////
+    var list = document.getElementById('listen-list');
     list.innerHTML = ''; // reset
-
-    for (let i = 0; i <= 10; i++) {
-        const id = 'listen-option-' + i;
-        const label = document.createElement('label');
-
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'listenOption';
-        radio.value = i;
-        radio.id = id;
-
-        if (i === currentAux.value) radio.checked = true;
-
-        radio.onchange = function() {
-            onListenOptionChange(this.value);
-        };
-
-        label.appendChild(radio);
-        label.appendChild(document.createTextNode(i === 0 ? 'Main PA' : `AUX ${i}`));
-        list.appendChild(label);
+    for (var k = 0; k <= 10; k++) {
+      var id = 'listen-option-' + k;
+      var label2 = document.createElement('label');
+      var radio2 = document.createElement('input');
+      radio2.type = 'radio';
+      radio2.name = 'listenOption';
+      radio2.value = k;
+      radio2.id = id;
+      if (k === currentAux.value) radio2.checked = true;
+      radio2.addEventListener('change', onAuxListenchange);
+      label2.appendChild(radio2);
+      label2.appendChild(document.createTextNode(auxnames[k]));
+      list.appendChild(label2);
     }
-}
 
-// Aprendo il dialog, popola la select
-// Aprendo il dialog, popola la lista
-document.getElementById('listenButton').addEventListener('click', function() {
-    openDialog('listen-dialog');
-    populateListenList();
-});
+    ///////////////////////////
+    // EVENTI GRIGLIA
+    ///////////////////////////
+    wrapper.onclick = function (e) {
+      var target = e.target || e.srcElement;
+      if (target && target.tagName === "BUTTON") {
+        var ch = parseInt(target.getAttribute("data-ch"), 10);
+        var step = 0.02;
+        var valueSpan = document.getElementById("fader_value_" + (ch));
+        if (target.textContent === "-") {
+          model[currentAux.value][ch] -= step;
+          if (model[currentAux.value][ch] < 0) model[currentAux.value][ch] = 0;
+        } else if (target.textContent === "+") {
+          model[currentAux.value][ch] += step;
+          if (model[currentAux.value][ch] > 1) model[currentAux.value][ch] = 1;
+        }
+        // arrotonda a 2 decimali per il model
+        model[currentAux.value][ch] = Math.round(model[currentAux.value][ch] * 100) / 100;
+        pending[currentAux.value][ch] = true;
+        valueSpan.textContent = (model[currentAux.value][ch] * 10).toFixed(1); // 0.0 - 10.0
+        valueSpan.className = "value-pending";
 
-const listenDialog = document.getElementById('listenDialog');
-const listenButton = document.getElementById('listenButton');
-const closeListenDialog = document.getElementById('closeListenDialog');
+        var messaggio = "3:::SETD^i." + (ch - 1) + ".aux." + (currentAux.value - 1) + ".value^" + model[currentAux.value][ch];
+        console.log(messaggio);
+        handleOutboundMsg(messaggio);
+      }
+    };
 
-// Al posto di: listenDialog.showModal();
-document.getElementById('listenButton').addEventListener('click', function() {
-  openDialog('listen-dialog');
-});
+    ///////////////////////////
+    // Eventi footer
+    ///////////////////////////
+    var mainSlider = document.getElementById("slider-range");
+    var mainSliderValue = document.getElementById("slider-value");
 
-// Al posto di: listenDialog.close();
-document.getElementById('listen-dialog-close').addEventListener('click', function() {
-  closeDialog('listen-dialog');
-});
+    mainSlider.addEventListener("input", function (event) {
+
+      var raw = parseFloat(event.target.value);
+      // UI mostra 1 decimale come prima
+      mainSliderValue.textContent = raw.toFixed(1);
+      // model memorizza numero con 2 decimali
+      var valModel = Math.round((raw / 10) * 100) / 100;
+      model[currentAux.value][0] = valModel;
+      pending[currentAux.value][0] = true;
+      var messaggio = "3:::SETD^a." + (currentAux.value - 1) + ".mix^" + valModel;
+      handleOutboundMsg(messaggio);
+    });
+
+    function setMainSliderValue(value) {
+      mainSlider.value = value;
+      var evt = document.createEvent("Event");
+      evt.initEvent("input", true, true);
+      mainSlider.dispatchEvent(evt);
+    }
+
+    //setMainSliderValue(9);
+
+    ///////////////////////////
+    // Eventi AUX/CHANNEL NAME
+    ///////////////////////////
+    function setChannelName(id, text) {
+      channelnames[id] = text;
+      var channelLabel = document.getElementById("ch_name_" + id);
+
+      if (channelLabel) channelLabel.textContent = channelnames[id];
+    }
+
+    function setAuxlName(id, text) {
+      auxnames[id] = text;
+
+      if (id === currentAux.value) {
+        var configButtonLabel = document.getElementById("open-config-dialog");
+        if (configButtonLabel) configButtonLabel.innerText = '✏️ : ' + id + "-" + auxnames[id];
+      }
+
+      // Aggiorna Lista nomi in aux edit choice
+      var labels_edit_choices = document.querySelectorAll('label > input[name="aux"]');
+      if (labels_edit_choices && labels_edit_choices.length >= id) {
+        var label_edit = labels_edit_choices[id - 1].parentElement;
+        if (label_edit && label_edit.lastChild) label_edit.lastChild.textContent = auxnames[id];
+      }
+
+      // Aggiorna Lista nomi in aux listen choice
+      var labels_listen_choices = document.querySelectorAll('label > input[name="listenOption"]');
+      if (labels_listen_choices && labels_listen_choices.length >= id) {
+        var label_listen = labels_listen_choices[id].parentElement;
+        if (label_listen && label_listen.lastChild) label_listen.lastChild.textContent = auxnames[id];
+      }
+    }
+
+    ///////////////////////////
+    // Eventi AUX EDIT CHANGE
+    ///////////////////////////
+    function onAuxEditchange(event) {
+      var value = parseInt(event.target.value, 10);
+      currentAux.value = value;
+      configBtn.textContent = '✏️ : ' + value + '-' + auxnames[value];
+      var listenOptionEl = document.getElementById('listen-option-' + currentAux.value);
+      if (listenOptionEl) listenOptionEl.checked = true;
+      for (var ch = 1; ch <= chCount; ch++) {
+        var fv = document.getElementById('fader_value_' + ch);
+        if (fv) fv.textContent = (model[currentAux.value][ch] * 10).toFixed(1);
+      }
+
+      mainSliderValue.textContent = ((model[currentAux.value][0]) * 10).toFixed(1);
+      mainSlider.value = (model[currentAux.value][0]) * 10;
+      var evt = document.createEvent("Event");
+      evt.initEvent("input", true, true);
+      mainSlider.dispatchEvent(evt);
+
+    }
+
+    ///////////////////////////
+    // Eventi AUX LISTEN CHANGE
+    ///////////////////////////
+    function onAuxListenchange(event) {
+      var auxlistening = parseInt(event.target.value, 10);
+      for (var ch = 1; ch <= chCount; ch++) {
+        //SETD^i.18.aux.6.value^
+        messaggio = "3:::SETD^i." + (ch - 1) + ".aux." + (currentAux.value - 1) + ".value^" + model[auxlistening][ch];
+        handleOutboundMsg(messaggio)
+      }
+    }
+
+    ////////////////////////////
+    // FUNZIONI
+    /////////////////////////////
 
 
-document.getElementById('fullscreen-btn').onclick = function () {
-  const doc = document.documentElement;
-  if (!document.fullscreenElement && 
-      !document.webkitFullscreenElement && 
-      !document.mozFullScreenElement && 
-      !document.msFullscreenElement) {
-    // Entra in fullscreen
-    if (doc.requestFullscreen) doc.requestFullscreen();
-    else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
-    else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
-    else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
-  } else {
-    // Esci dal fullscreen
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-    else if (document.msExitFullscreen) document.msExitFullscreen();
-  }
-};
+    // OPEN AUX-CHOICE OR
+    function openDialog(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = "block";
+    }
+
+    function closeDialog(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = "none";
+      if (id === "listen-dialog") {
+        //Risetto la scelta listening a AUX corrente
+        var listenOptionEl = document.getElementById('listen-option-' + currentAux.value);
+        if (listenOptionEl) listenOptionEl.checked = true;
+        for (var ch = 1; ch <= chCount; ch++) {
+          // Risincronizzo AUX corrente sul mixer
+          //SETD^i.18.aux.6.value^
+          messaggio = "3:::SETD^i." + (ch - 1) + ".aux." + (currentAux.value - 1) + ".value^" + model[currentAux.value][ch];
+          handleOutboundMsg(messaggio)
+        }
+      }
 
 
-</script>
+    }
 
+    function handleOutboundMsg(msgtext) {
+      if (socket && socket.readyState === 1) {
+        socket.send(msgtext);
+      }
+    }
 
-</script>
+    function handleInboundMsg(msgtext) {
+      var parts = msgtext.split('^');
+      if (parts.length < 3) {
+        return null;
+      }
+      var prefix = parts[0];       // SETS o SETD
+      var pathStr = parts[1];      // es: "a.4.name"
+      var value = parts[2];         // il valore dopo la seconda ^
+
+      var tokens = pathStr.split('.');
+      //SETS^a.4.name^STEFANO
+      if (prefix === "SETS" && tokens[0] === "a" && tokens[2] === "name") {
+        if (value === "") value = "AUX " + String(parseInt(tokens[1], 10) + 1);
+        setAuxlName((parseInt(tokens[1], 10) + 1), value);
+      }
+      else if (prefix === "SETS" && tokens[0] === "i" && tokens[2] === "name") {
+        if (value === "") value = "CH " + String(parseInt(tokens[1], 10) + 1);
+        setChannelName(parseInt(tokens[1], 10) + 1, value)
+      }
+      else if (prefix === "SETD" && tokens[0] === "i" && tokens[2] === "aux" && tokens[4] === "value") {
+        model[parseInt(tokens[3], 10) + 1][parseInt(tokens[1], 10) + 1] = Math.round(value * 100) / 100;
+        if (currentAux.value === parseInt(tokens[3], 10) + 1) {
+          var fv = document.getElementById('fader_value_' + (parseInt(tokens[1], 10) + 1));
+          if (fv)
+            fv.textContent = ((model[parseInt(tokens[3], 10) + 1][parseInt(tokens[1], 10) + 1]) * 10).toFixed(1);
+        }
+      }
+      else if (prefix === "SETD" && tokens[0] === "a" && tokens[2] === "mix") {
+        model[parseInt(tokens[1], 10) + 1][0] = Math.round(value * 100) / 100;
+        if (currentAux.value === parseInt(tokens[1], 10) + 1) {
+          mainSliderValue.textContent = ((model[currentAux.value][0]) * 10).toFixed(1);
+          mainSlider.value = (model[currentAux.value][0]) * 10;
+          var evt = document.createEvent("Event");
+          evt.initEvent("input", true, true);
+          mainSlider.dispatchEvent(evt);
+        }
+      }
+      else if (prefix === "SETD" && tokens[0] === "i" && tokens[2] === "mix") {
+        model[0][parseInt(tokens[1], 10) + 1] = Math.round(value * 100) / 100;
+      }
+      else if (prefix === "SETD" && tokens[0] === "m" && tokens[1] === "mix") {
+        model[0][0] = Math.round(value * 100) / 100;
+      }
+    }
+
+    function connectToMixer() {
+      var ip = document.getElementById("mixer-ip").value;
+      var mixerConnString = "ws://" + ip + ":80";
+      cleanupSocket(); // nel caso sia aperto
+      socket = new WebSocket(mixerConnString);
+      socket.onopen = function () {
+        appendLog("✅ Connessione aperta a: " + mixerConnString);
+        aliveTimer = setInterval(function () {
+          if (socket.readyState === 1) { // 1 = OPEN
+            socket.send("3:::ALIVE");
+          }
+        }, 1000);
+      };
+      socket.onerror = function (err) {
+        appendLog("❌ Errore WebSocket");
+        console.log(err);
+      };
+      socket.onclose = function () {
+        appendLog("🔒 Connessione chiusa");
+      };
+      socket.onmessage = function (event) {
+        var message = event.data;
+        // cerca 2::: o 3::: all’inizio
+        var match = message.match(/^([3]:::)([\s\S]*)/);
+        if (match) {
+          var prefix = match[1];  // "3:::"
+          var content = match[2]; // il resto del messaggio
+          // spezza eventuali messaggi multipli su più righe
+          var parts = content.split('\n');
+          for (var i = 0; i < parts.length; i++) {
+            var line = parts[i].trim();
+            if (line.length > 0) {
+              // conserva solo le righe che iniziano con SETD o SETS
+              if (/^(SETD|SETS)/.test(line)) {
+                handleInboundMsg(line);
+              }
+            }
+          }
+        }
+      };
+    }
+
+    function appendLog(msg) {
+      var area = document.getElementById("log-area");
+      area.value += msg + "\n";
+      area.scrollTop = area.scrollHeight;
+    }
+
+    function cleanupSocket() {
+      try {
+        if (aliveTimer) {
+          clearInterval(aliveTimer);
+          aliveTimer = null;
+        }
+        if (socket) {
+          try {
+            // avvisa il server prima di chiudere
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send("CLIENT_CLOSING");
+            }
+            socket.close(1000, "page reload");
+          } catch (err) { }
+          socket = null;
+        }
+      } catch (e) { }
+    }
+
+    // chiusura forzata prima del reload
+    window.addEventListener("beforeunload", function () {
+      cleanupSocket();
+    });
+
+    // fallback per browser vecchi
+    window.addEventListener("pagehide", function () {
+      cleanupSocket();
+    });
+  </script>
 
 </body>
+
 </html>
