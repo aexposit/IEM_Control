@@ -14,7 +14,8 @@
     body {
       margin: 0;
       padding: 0;
-      padding-bottom: 10px;
+      bottom: 50px;
+      top: 50px;
       height: 100%;
       width: 100%;
       font-family: Arial, sans-serif;
@@ -40,7 +41,6 @@
     }
 
     #header {
-      top: 10px;
       display: -webkit-flex;
       display: flex;
       -webkit-align-items: center;
@@ -50,6 +50,7 @@
       /* ← spinge i gruppi ai lati */
       position: fixed;
       width: 100%;
+      top: 20px;
       padding: 0 5px;
       box-sizing: border-box;
     }
@@ -87,7 +88,6 @@
     }
 
     #footer {
-      bottom: 10px;
       display: -webkit-flex;
       display: flex;
       -webkit-justify-content: space-between;
@@ -95,6 +95,7 @@
       -webkit-align-items: center;
       align-items: center;
       padding: 0;
+      bottom: 20px;
     }
 
     #slider-label {
@@ -113,8 +114,8 @@
 
     #grid-wrapper {
       position: absolute;
-      top: 55px;
-      bottom: 50px;
+      top: 60px;
+      bottom: 60px;
       left: 0;
       right: 0;
     }
@@ -353,10 +354,10 @@
   <!-- AUX choice Dialog -->
   <div id="config-dialog" class="dialog">
     <div id="config-dialog-content" class="dialog-content">
-      <p>Seleziona AUX in EDIT:</p>
+      <p>Select AUX in EDIT Mode:</p>
       <div id="aux-list"></div>
       <button id="config-dialog-close" class="header-btn" onclick="closeDialog('config-dialog')">
-        Chiudi
+        Close
       </button>
     </div>
   </div>
@@ -366,23 +367,23 @@
     <div id="log-dialog-content" class="dialog-content">
       <div
         style="display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; margin-bottom:5px;">
-        <label for="mixer-ip" style="flex:1;">IP Mixer:</label>
+        <label for="mixer-ip" style="flex:1;">IP :</label>
         <input type="text" id="mixer-ip" style="flex:2; margin-right:5px;" />
-        <button id="connect-btn" style="flex:1;" class="header-btn" onclick="connectToMixer()">Connetti</button>
+        <button id="connect-btn" style="flex:1;" class="header-btn" onclick="connectToMixer()">Connect</button>
       </div>
       <textarea id="log-area" readonly
         style="width:100%; height:150px; background:#1a1a1a; color:#fff; border:1px solid #555; resize:none; overflow-y:scroll;"></textarea>
 
-      <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Chiudi</button>
+      <button id="log-dialog-close" class="header-btn" onclick="closeDialog('log-dialog')">Close</button>
     </div>
   </div>
 
   <!-- Temporary AUX listener Dialog -->
   <div id="listen-dialog" class="dialog">
     <div class="dialog-content">
-      <p>Seleziona sorgente:</p>
+      <p>Select listening AUX:</p>
       <div id="listen-list"></div>
-      <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Chiudi</button>
+      <button id="listen-dialog-close" class="header-btn" onclick="closeDialog('listen-dialog')">Close</button>
     </div>
   </div>
 
@@ -414,6 +415,8 @@
     // APP INIT
     ///////////////////////////
     var socket = null;
+    var monitor = null;
+    var aliveTimer = null;
     var auxCount = 10;
     var chCount = 20;
     var currentAux = { value: 1 };
@@ -580,6 +583,7 @@
       pending[currentAux.value][0] = true;
       var messaggio = "3:::SETD^a." + (currentAux.value - 1) + ".mix^" + valModel;
       handleOutboundMsg(messaggio);
+      console.log(messaggio);
     });
 
 
@@ -656,6 +660,7 @@
         //SETD^i.18.aux.6.value^
         messaggio = "3:::SETD^i." + (ch - 1) + ".aux." + (currentAux.value - 1) + ".value^" + model[auxlistening][ch];
         handleOutboundMsg(messaggio)
+        console.log(messaggio);
       }
     }
 
@@ -682,6 +687,7 @@
           //SETD^i.18.aux.6.value^
           messaggio = "3:::SETD^i." + (ch - 1) + ".aux." + (currentAux.value - 1) + ".value^" + model[currentAux.value][ch];
           handleOutboundMsg(messaggio)
+          console.log(messaggio);
         }
       }
 
@@ -690,6 +696,7 @@
 
     function handleOutboundMsg(msgtext) {
       if (socket && socket.readyState === 1) {
+        console.log(msgtext);
         socket.send(msgtext);
       }
     }
@@ -739,47 +746,108 @@
       }
     }
 
-    function connectToMixer() {
-      var ip = document.getElementById("mixer-ip").value;
-      var mixerConnString = "ws://" + ip + ":80";
-      cleanupSocket(); // nel caso sia aperto
-      socket = new WebSocket(mixerConnString);
-      socket.onopen = function () {
-        appendLog("✅ Connessione aperta a: " + mixerConnString);
-        aliveTimer = setInterval(function () {
-          if (socket.readyState === 1) { // 1 = OPEN
-            socket.send("3:::ALIVE");
-          }
-        }, 1000);
-      };
-      socket.onerror = function (err) {
-        appendLog("❌ Errore WebSocket");
-        console.log(err);
-      };
-      socket.onclose = function () {
-        appendLog("🔒 Connessione chiusa");
-      };
-      socket.onmessage = function (event) {
-        var message = event.data;
-        // cerca 2::: o 3::: all’inizio
-        var match = message.match(/^([3]:::)([\s\S]*)/);
-        if (match) {
-          var prefix = match[1];  // "3:::"
-          var content = match[2]; // il resto del messaggio
-          // spezza eventuali messaggi multipli su più righe
-          var parts = content.split('\n');
-          for (var i = 0; i < parts.length; i++) {
-            var line = parts[i].trim();
-            if (line.length > 0) {
-              // conserva solo le righe che iniziano con SETD o SETS
-              if (/^(SETD|SETS)/.test(line)) {
-                handleInboundMsg(line);
-              }
+    // dichiarazioni globali (necessarie su iOS 9)
+var socket = null;
+var monitor = null;
+var aliveTimer = null;
+
+function connectToMixer() {
+  var ip = document.getElementById("mixer-ip").value;
+  if (!ip) {
+    appendLog("⚠️ Set a valid IP address");
+    return;
+  }
+
+  var mixerConnString = "ws://" + ip + ":80";
+
+  // pulizia socket e timer precedenti
+  cleanupSocket();
+  clearInterval(monitor);
+  clearInterval(aliveTimer);
+
+  // verifica compatibilità
+  if (!("WebSocket" in window)) {
+    appendLog("❌ This browser does not support websocket");
+    return;
+  }
+
+  try {
+    socket = new WebSocket(mixerConnString);
+
+    socket.onopen = function () {
+      appendLog("✅ Connection opened to: " + mixerConnString);
+
+      // invia heartbeat periodico
+      aliveTimer = setInterval(function () {
+        if (socket && socket.readyState === 1) {
+          socket.send("3:::ALIVE");
+        }
+      }, 1000);
+    };
+
+    socket.onerror = function (err) {
+      appendLog("❌ Error WebSocket.");
+      console.log(err);
+      clearInterval(monitor);
+      clearInterval(aliveTimer);
+    };
+
+    socket.onclose = function (event) {
+      appendLog("🔒 Connection closed.");
+      clearInterval(monitor);
+      clearInterval(aliveTimer);
+    };
+
+    socket.onmessage = function (event) {
+      var message = event.data;
+      var match = message.match(/^([3]:::)([\s\S]*)/);
+      if (match) {
+        var content = match[2];
+        var parts = content.split("\n");
+        for (var i = 0; i < parts.length; i++) {
+          var line = parts[i].trim();
+          if (line.length > 0) {
+            if (line.indexOf("SETD") === 0 || line.indexOf("SETS") === 0) {
+              handleInboundMsg(line);
             }
           }
         }
-      };
+      }
+    };
+
+  } catch (err) {
+    appendLog("💥 Error creating Websocket: " + err.message);
+    clearInterval(monitor);
+    clearInterval(aliveTimer);
+    socket = null;
+    return;
+  }
+
+  // monitor dello stato della connessione
+  monitor = setInterval(function () {
+    if (!socket) return;
+
+    switch (socket.readyState) {
+      case 0:
+        appendLog("🔄 Connecting...");
+        break;
+      case 1:
+        appendLog("✅ Connection OK!");
+        clearInterval(monitor);
+        break;
+      case 2:
+        appendLog("⚠️ Connection closing...");
+        break;
+      case 3:
+        appendLog("❌ Connection closed or failed");
+        clearInterval(monitor);
+        break;
     }
+  }, 5000);
+}
+
+
+
 
     function appendLog(msg) {
       var area = document.getElementById("log-area");
