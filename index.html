@@ -321,6 +321,32 @@
       /* accent-color not supported in old browsers; ignored */
       cursor: pointer;
     }
+
+    /* Slider più grande e visibile su Safari / iOS */
+    #slider-range {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      /* spessore della traccia */
+      background: #333;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    /* Thumb (il cerchio che si muove) */
+    #slider-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 40px;
+      /* LARGHEZZA del thumb */
+      height: 40px;
+      /* ALTEZZA del thumb */
+      background: #00ff66;
+      /* colore visibile */
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #0d8726;
+    }
   </style>
 </head>
 
@@ -747,104 +773,104 @@
     }
 
     // dichiarazioni globali (necessarie su iOS 9)
-var socket = null;
-var monitor = null;
-var aliveTimer = null;
+    var socket = null;
+    var monitor = null;
+    var aliveTimer = null;
 
-function connectToMixer() {
-  var ip = document.getElementById("mixer-ip").value;
-  if (!ip) {
-    appendLog("⚠️ Set a valid IP address");
-    return;
-  }
+    function connectToMixer() {
+      var ip = document.getElementById("mixer-ip").value;
+      if (!ip) {
+        appendLog("⚠️ Set a valid IP address");
+        return;
+      }
 
-  var mixerConnString = "ws://" + ip + ":80";
+      var mixerConnString = "ws://" + ip + ":80";
 
-  // pulizia socket e timer precedenti
-  cleanupSocket();
-  clearInterval(monitor);
-  clearInterval(aliveTimer);
-
-  // verifica compatibilità
-  if (!("WebSocket" in window)) {
-    appendLog("❌ This browser does not support websocket");
-    return;
-  }
-
-  try {
-    socket = new WebSocket(mixerConnString);
-
-    socket.onopen = function () {
-      appendLog("✅ Connection opened to: " + mixerConnString);
-
-      // invia heartbeat periodico
-      aliveTimer = setInterval(function () {
-        if (socket && socket.readyState === 1) {
-          socket.send("3:::ALIVE");
-        }
-      }, 1000);
-    };
-
-    socket.onerror = function (err) {
-      appendLog("❌ Error WebSocket.");
-      console.log(err);
+      // pulizia socket e timer precedenti
+      cleanupSocket();
       clearInterval(monitor);
       clearInterval(aliveTimer);
-    };
 
-    socket.onclose = function (event) {
-      appendLog("🔒 Connection closed.");
-      clearInterval(monitor);
-      clearInterval(aliveTimer);
-    };
+      // verifica compatibilità
+      if (!("WebSocket" in window)) {
+        appendLog("❌ This browser does not support websocket");
+        return;
+      }
 
-    socket.onmessage = function (event) {
-      var message = event.data;
-      var match = message.match(/^([3]:::)([\s\S]*)/);
-      if (match) {
-        var content = match[2];
-        var parts = content.split("\n");
-        for (var i = 0; i < parts.length; i++) {
-          var line = parts[i].trim();
-          if (line.length > 0) {
-            if (line.indexOf("SETD") === 0 || line.indexOf("SETS") === 0) {
-              handleInboundMsg(line);
+      try {
+        socket = new WebSocket(mixerConnString);
+
+        socket.onopen = function () {
+          appendLog("✅ Connection opened to: " + mixerConnString);
+
+          // invia heartbeat periodico
+          aliveTimer = setInterval(function () {
+            if (socket && socket.readyState === 1) {
+              socket.send("3:::ALIVE");
+            }
+          }, 1000);
+        };
+
+        socket.onerror = function (err) {
+          appendLog("❌ Error WebSocket.");
+          console.log(err);
+          clearInterval(monitor);
+          clearInterval(aliveTimer);
+        };
+
+        socket.onclose = function (event) {
+          appendLog("🔒 Connection closed.");
+          clearInterval(monitor);
+          clearInterval(aliveTimer);
+        };
+
+        socket.onmessage = function (event) {
+          var message = event.data;
+          var match = message.match(/^([3]:::)([\s\S]*)/);
+          if (match) {
+            var content = match[2];
+            var parts = content.split("\n");
+            for (var i = 0; i < parts.length; i++) {
+              var line = parts[i].trim();
+              if (line.length > 0) {
+                if (line.indexOf("SETD") === 0 || line.indexOf("SETS") === 0) {
+                  handleInboundMsg(line);
+                }
+              }
             }
           }
-        }
+        };
+
+      } catch (err) {
+        appendLog("💥 Error creating Websocket: " + err.message);
+        clearInterval(monitor);
+        clearInterval(aliveTimer);
+        socket = null;
+        return;
       }
-    };
 
-  } catch (err) {
-    appendLog("💥 Error creating Websocket: " + err.message);
-    clearInterval(monitor);
-    clearInterval(aliveTimer);
-    socket = null;
-    return;
-  }
+      // monitor dello stato della connessione
+      monitor = setInterval(function () {
+        if (!socket) return;
 
-  // monitor dello stato della connessione
-  monitor = setInterval(function () {
-    if (!socket) return;
-
-    switch (socket.readyState) {
-      case 0:
-        appendLog("🔄 Connecting...");
-        break;
-      case 1:
-        appendLog("✅ Connection OK!");
-        clearInterval(monitor);
-        break;
-      case 2:
-        appendLog("⚠️ Connection closing...");
-        break;
-      case 3:
-        appendLog("❌ Connection closed or failed");
-        clearInterval(monitor);
-        break;
+        switch (socket.readyState) {
+          case 0:
+            appendLog("🔄 Connecting...");
+            break;
+          case 1:
+            appendLog("✅ Connection OK!");
+            clearInterval(monitor);
+            break;
+          case 2:
+            appendLog("⚠️ Connection closing...");
+            break;
+          case 3:
+            appendLog("❌ Connection closed or failed");
+            clearInterval(monitor);
+            break;
+        }
+      }, 5000);
     }
-  }, 5000);
-}
 
 
 
