@@ -322,30 +322,47 @@
       cursor: pointer;
     }
 
-    /* Slider più grande e visibile su Safari / iOS */
+    /* Stile base della traccia */
     #slider-range {
       -webkit-appearance: none;
       appearance: none;
+      width: 100%;
       height: 8px;
-      /* spessore della traccia */
       background: #333;
       border-radius: 4px;
       outline: none;
     }
 
-    /* Thumb (il cerchio che si muove) */
+    /* Thumb per Safari / Chrome (iOS e desktop) */
     #slider-range::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 40px;
-      /* LARGHEZZA del thumb */
-      height: 40px;
-      /* ALTEZZA del thumb */
+      width: 30px;
+      height: 30px;
       background: #00ff66;
-      /* colore visibile */
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid #0d8726;
+    }
+
+    /* Thumb per Firefox */
+    #slider-range::-moz-range-thumb {
+      width: 30px;
+      height: 30px;
+      background: #00ff66;
+      border-radius: 50%;
+      border: 2px solid #0d8726;
+      cursor: pointer;
+    }
+
+    /* Thumb per Edge/Internet Explorer (vecchie versioni) */
+    #slider-range::-ms-thumb {
+      width: 30px;
+      height: 30px;
+      background: #00ff66;
+      border-radius: 50%;
+      border: 2px solid #0d8726;
+      cursor: pointer;
     }
   </style>
 </head>
